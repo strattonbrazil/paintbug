@@ -4,6 +4,7 @@
 #include <QGLWidget>
 #include "transformable.h"
 #include "camera.h"
+#include "shader.h"
 
 class GLView : public QGLWidget
 {
@@ -18,14 +19,16 @@ public:
     void                     mouseReleaseEvent(QMouseEvent* event);
     void                     mouseMoveEvent(QMouseEvent* event);
     void                     mouseDragEvent(QMouseEvent* event);
-
+    QGLFormat                defaultFormat();
 signals:
 
 public slots:
 
 private:
-    Transformable* _camera;
-    CameraScratch            _cameraScratch;
+    Transformable*     _camera;
+    CameraScratch      _cameraScratch;
+    bool               _validShaders;
+    QGLShaderProgram*  _meshShader;
 };
 
 #endif // GLVIEW_H

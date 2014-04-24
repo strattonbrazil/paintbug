@@ -17,11 +17,13 @@ SOURCES += main.cpp\
            glview.cpp \
     camera.cpp \
     transformable.cpp \
-    util.cpp
+    util.cpp \
+    shader.cpp
 
 HEADERS  += mainwindow.h \
             glview.h \
     camera.h \
     transformable.h \
-    util.h
+    util.h \
+    shader.h
 FORMS    += mainwindow.ui

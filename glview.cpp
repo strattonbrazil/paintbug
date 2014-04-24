@@ -17,7 +17,7 @@ GLView::GLView(QWidget *parent) :
     QGLWidget(parent)
 {
     _camera = new Camera();
-
+    _validShaders = false;
 }
 
 void GLView::resizeGL(int w, int h)
@@ -28,11 +28,22 @@ void GLView::resizeGL(int w, int h)
 
 void GLView::paintGL()
 {
+    if (!_validShaders) {
+        _meshShader = ShaderFactory::buildMeshShader(this);
+        _validShaders = true;
+    }
+
     glClearColor(.2,.2,.2,0);
     glClear(GL_COLOR_BUFFER_BIT);
 
     QMatrix4x4 cameraProjM = Camera::getProjMatrix(_camera, width(), height());
     QMatrix4x4 cameraViewM = Camera::getViewMatrix(_camera, width(), height());
+    QMatrix4x4 cameraProjViewM = cameraProjM * cameraViewM;
+    QMatrix4x4 objToWorld;
+
+    _meshShader->bind();
+    _meshShader->setUniformValue("objToWorld", objToWorld);
+    _meshShader->setUniformValue("cameraPV", cameraProjViewM);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -43,7 +54,18 @@ void GLView::paintGL()
 
     glutSolidSphere(1, 8, 8);
 
+    _meshShader->release();
+}
 
+QGLFormat GLView::defaultFormat()
+{
+    QGLFormat format;
+       //format.setVersion(3,2);
+    format.setAlpha(true);
+    format.setStencil(true);
+    format.setVersion(3,1);
+    format.setProfile(QGLFormat::CoreProfile);
+    return format;
 }
 
 void GLView::mousePressEvent(QMouseEvent* event)
