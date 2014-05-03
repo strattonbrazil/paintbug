@@ -2,6 +2,7 @@
 #define GLVIEW_H
 
 #include <QGLWidget>
+#include <QOpenGLFramebufferObject>
 #include "transformable.h"
 #include "camera.h"
 #include "shader.h"
@@ -28,7 +29,10 @@ private:
     Transformable*     _camera;
     CameraScratch      _cameraScratch;
     bool               _validShaders;
+    bool               _validFbos;
     QGLShaderProgram*  _meshShader;
+    QOpenGLFramebufferObject* _paintFbo;
+    QList<Point2>      _strokePoints;
 };
 
 #endif // GLVIEW_H

@@ -1,10 +1,12 @@
 #include "glview.h"
 
 #include <iostream>
-#include "camera.h"
-#include "QMatrix4x4"
+#include <QMatrix4x4>
 
-#include <GL/freeglut.h>
+#include "camera.h"
+#include "scene.h"
+
+#define PAINT_FBO_WIDTH 2048
 
 namespace MouseMode {
     enum { FREE, CAMERA, TOOL };
@@ -18,11 +20,12 @@ GLView::GLView(QWidget *parent) :
 {
     _camera = new Camera();
     _validShaders = false;
+    _validFbos = false;
 }
 
 void GLView::resizeGL(int w, int h)
 {
-    std::cout << "resizing: " << w << " " << h << std::endl;
+
     glViewport(0, 0, w, h);
 }
 
@@ -33,8 +36,19 @@ void GLView::paintGL()
         _validShaders = true;
     }
 
+    if (!_validFbos) {
+        _paintFbo = new QOpenGLFramebufferObject(PAINT_FBO_WIDTH, PAINT_FBO_WIDTH);
+        _paintFbo->bind();
+        glClearColor(1,0,.5,0.3);
+        glClear(GL_COLOR_BUFFER_BIT);
+        _paintFbo->release();
+        _validFbos = true;
+    }
+
+    glEnable(GL_DEPTH_TEST);
+
     glClearColor(.2,.2,.2,0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     QMatrix4x4 cameraProjM = Camera::getProjMatrix(_camera, width(), height());
     QMatrix4x4 cameraViewM = Camera::getViewMatrix(_camera, width(), height());
@@ -52,9 +66,80 @@ void GLView::paintGL()
     glLoadIdentity();
     glLoadMatrixf(cameraViewM.data());
 
-    glutSolidSphere(1, 8, 8);
+    Scene* scene = Scene::activeScene();
+
+    // render each mesh
+    QHashIterator<QString,Mesh*> meshes = scene->meshes();
+    while (meshes.hasNext()) {
+        meshes.next();
+        Mesh* mesh = meshes.value();
+
+        glBegin(GL_TRIANGLES);
+        {
+            const int NUM_TRIANGLES = mesh->numTriangles();
+            for (int i = 0; i < NUM_TRIANGLES; i++) {
+                for (int j = 0; j < 3; j++) {
+                    const unsigned int vertIndex = mesh->_triangleIndices[i*3+j];
+                    Point3 vert = mesh->_vertices[vertIndex];
+                    Point2 uv = mesh->_uvs[vertIndex];
+                    glTexCoord2f(uv.x(), uv.y());
+                    glVertex3f(vert.x(), vert.y(), vert.z());
+                }
+            }
+        }
+        glEnd();
+    }
 
     _meshShader->release();
+
+    glBegin(GL_LINES);
+    for (int i = -10; i <= 10; i++) {
+        glVertex3f(-10, 0, i);
+        glVertex3f(10, 0, i);
+    }
+    glEnd();
+
+    glDisable(GL_DEPTH_TEST);
+
+    _paintFbo->bind();
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, PAINT_FBO_WIDTH, 0, PAINT_FBO_WIDTH, -1, 1);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glBegin(GL_POINTS);
+    foreach (Point2 p, _strokePoints) {
+        glVertex2f(p.x(), p.y());
+    }
+    glEnd();
+
+    _paintFbo->release();
+
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, width(), 0, height(), -1, 1);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    glBindTexture(GL_TEXTURE_2D, _paintFbo->texture());
+
+    glBegin(GL_QUADS);
+    glTexCoord2f(0,0);
+    glVertex2f(0,0);
+    glTexCoord2f(1,0);
+    glVertex2f(PAINT_FBO_WIDTH,0);
+    glTexCoord2f(1,1);
+    glVertex2f(PAINT_FBO_WIDTH,PAINT_FBO_WIDTH);
+    glTexCoord2f(0,1);
+    glVertex2f(0,PAINT_FBO_WIDTH);
+    glEnd();
+
+    glDisable(GL_BLEND);
+    glDisable(GL_TEXTURE_2D);
 }
 
 QGLFormat GLView::defaultFormat()
@@ -70,15 +155,18 @@ QGLFormat GLView::defaultFormat()
 
 void GLView::mousePressEvent(QMouseEvent* event)
 {
-    bool altDown = event->modifiers() & Qt::AltModifier;
+    //bool altDown = event->modifiers() & Qt::AltModifier;
+    bool camDown = event->modifiers() & Qt::MetaModifier;
 
-    if (mouseMode == MouseMode::FREE && altDown) {
+    if (mouseMode == MouseMode::FREE && camDown) {
         mouseMode = MouseMode::CAMERA;
         activeMouseButton = event->button();
         Camera::mousePressed(_camera, _cameraScratch, event);
     }
-    /*
     else if (mouseMode == MouseMode::FREE && event->button() & Qt::LeftButton) {
+        _strokePoints.append(Point2(event->pos().x(), height()-event->pos().y()));
+        mouseMode = MouseMode::TOOL;
+        /*
         if (_workTool != 0) {
             mouseMode = MouseMode::TOOL;
             activeMouseButton = event->button();
@@ -90,8 +178,8 @@ void GLView::mousePressEvent(QMouseEvent* event)
             CursorTool* cursorTool = SunshineUi::cursorTool();
             cursorTool->mousePressed(this, event);
         }
+        */
     }
-    */
 }
 
 void GLView::mouseDoubleClickEvent(QMouseEvent *event)
@@ -158,8 +246,7 @@ void GLView::mouseReleaseEvent(QMouseEvent* event)
 
 void GLView::mouseMoveEvent(QMouseEvent* event)
 {
-/*
-    if (_workTool != 0 || mouseMode == MouseMode::TOOL) {
+    if (mouseMode == MouseMode::TOOL) {
         mouseDragEvent(event);
 
         //_workTool->mouseMoved(event);
@@ -167,7 +254,6 @@ void GLView::mouseMoveEvent(QMouseEvent* event)
 
         update();
     }
-    */
     if (mouseMode == MouseMode::FREE) {
         /*
         // calculate preselection
@@ -203,8 +289,9 @@ void GLView::mouseDragEvent(QMouseEvent* event)
         Camera::mouseDragged(_camera, _cameraScratch, event);
 
     }
-    /*
-    else if (mouseMode == MouseMode::TOOL || _workTool != 0) {
+    else if (mouseMode == MouseMode::TOOL) {
+        _strokePoints.append(Point2(event->pos().x(), height()-event->pos().y()));
+        /*
         if (_workTool != 0) {
             // move mouse back to center
                 QPoint mouseDiff = QCursor::pos() - centerMouse(TRUE);
@@ -220,8 +307,8 @@ void GLView::mouseDragEvent(QMouseEvent* event)
             CursorTool* cursorTool = SunshineUi::cursorTool();
             cursorTool->mouseDragged(this, event);
         }
+        */
     }
-    */
 
     update();
 

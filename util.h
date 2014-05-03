@@ -1,4 +1,4 @@
-#ifndef UTIL_H
+    #ifndef UTIL_H
 #define UTIL_H
 
 #include <QVector2D>
@@ -17,7 +17,10 @@
 typedef QVector2D Vector2;
 typedef QVector3D Vector3;
 typedef QVector4D Vector4;
-typedef QVector3D Point3; // bad idea?
+
+// bad idea?
+typedef QVector2D Point2;
+typedef QVector3D Point3;
 
 //qRegisterMetaType<Point3>();
 //#define Point3 QVector3D

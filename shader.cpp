@@ -6,7 +6,9 @@ QGLShaderProgram* ShaderFactory::buildMeshShader(QObject *parent)
     QString vertSource("#version 120\n" \
                        "uniform mat4 objToWorld;\n" \
                        "uniform mat4 cameraPV;\n" \
+                       "varying vec2 uv;\n" \
                        "void main() {\n" \
+                       "  uv = gl_MultiTexCoord0.xy;\n" \
                        "  gl_Position = cameraPV * objToWorld * gl_Vertex;\n" \
                        "  gl_FrontColor = vec4(1,0,0,1);\n" \
                        "}\n");
@@ -14,6 +16,7 @@ QGLShaderProgram* ShaderFactory::buildMeshShader(QObject *parent)
     //std::cout << geomSource << std::endl;
     QString fragSource("#version 120\n" \
                        "varying vec3 worldPos;\n" \
+                       "varying vec2 uv;\n" \
                        "uniform vec3 cameraPos;\n" \
                        "void main() {\n" \
                        "    // determine frag distance to closest edge\n" \
@@ -35,6 +38,7 @@ QGLShaderProgram* ShaderFactory::buildMeshShader(QObject *parent)
                        "    //gl_FragData[0] = (edgeIntensity * vec4(0.1,0.1,0.1,1.0)) + ((1.0-edgeIntensity) * combined);\n" \
                        "    //gl_FragData[1] = selectIndex;\n" \
                        "    gl_FragColor = vec4(1,0,0,1);\n" \
+                       "    gl_FragColor = vec4(uv.x, uv.y, 0, 1);\n" \
                        "}\n");
 
     //std::cout << vertSource.toStdString() << std::endl;
