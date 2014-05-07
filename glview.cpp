@@ -2,13 +2,14 @@
 
 #include <iostream>
 #include <QMatrix4x4>
+#include <QOpenGLFramebufferObjectFormat>
 
 #include "camera.h"
 #include "scene.h"
 
 #define PAINT_FBO_WIDTH 2048
 
-#define DEBUG_PAINT_LAYER 1
+#define DEBUG_PAINT_LAYER 0
 
 namespace MouseMode {
     enum { FREE, CAMERA, TOOL };
@@ -43,9 +44,11 @@ void GLView::paintGL()
 
     if (!_validFbos) {
         // TODO: change this to a smaller format since we're only using alpha
-        _paintFbo = new QOpenGLFramebufferObject(PAINT_FBO_WIDTH, PAINT_FBO_WIDTH);
+        QOpenGLFramebufferObjectFormat format;
+        format.setInternalTextureFormat(GL_RED);
+        _paintFbo = new QOpenGLFramebufferObject(PAINT_FBO_WIDTH, PAINT_FBO_WIDTH, format);
         _paintFbo->bind();
-        glClearColor(1,0,.5,0.3);
+        glClearColor(0,0,0,0); // only red is used
         glClear(GL_COLOR_BUFFER_BIT);
         _paintFbo->release();
         _validFbos = true;
@@ -140,12 +143,12 @@ void GLView::_drawPaintLayer()
 
     glBindTexture(GL_TEXTURE_2D, _paintFbo->texture());
 
-    _meshShader->bind();
-    _meshShader->setUniformValue("cameraPV", cameraProjViewM);
-    _meshShader->setUniformValue("paintTexture", 0);
+    _paintDebugShader->bind();
+    _paintDebugShader->setUniformValue("cameraPV", cameraProjViewM);
+    _paintDebugShader->setUniformValue("paintTexture", 0);
 
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glBindTexture(GL_TEXTURE_2D, _paintFbo->texture());
 
@@ -163,6 +166,7 @@ void GLView::_drawPaintLayer()
     glEnd();
 
     glDisable(GL_BLEND);
+    _paintDebugShader->release();
 }
 
 

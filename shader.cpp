@@ -77,7 +77,8 @@ QGLShaderProgram* ShaderFactory::buildPaintDebugShader(QObject *parent)
                        "uniform vec3 cameraPos;\n" \
                        "uniform sampler2D paintTexture;\n" \
                        "void main() {\n" \
-                       "    gl_FragColor = texture2D(paintTexture, uv.xy);\n" \
+                       "    float intensity = texture2D(paintTexture, uv.xy).r;\n" \
+                       "    gl_FragColor = vec4(1, 0.2, 1, intensity);\n" \
                        "}\n");
 
     //std::cout << vertSource.toStdString() << std::endl;
