@@ -8,6 +8,8 @@
 
 #define PAINT_FBO_WIDTH 2048
 
+#define DEBUG_PAINT_LAYER 1
+
 namespace MouseMode {
     enum { FREE, CAMERA, TOOL };
 }
@@ -33,10 +35,14 @@ void GLView::paintGL()
 {
     if (!_validShaders) {
         _meshShader = ShaderFactory::buildMeshShader(this);
+#if DEBUG_PAINT_LAYER
+        _paintDebugShader = ShaderFactory::buildPaintDebugShader(this);
+#endif
         _validShaders = true;
     }
 
     if (!_validFbos) {
+        // TODO: change this to a smaller format since we're only using alpha
         _paintFbo = new QOpenGLFramebufferObject(PAINT_FBO_WIDTH, PAINT_FBO_WIDTH);
         _paintFbo->bind();
         glClearColor(1,0,.5,0.3);
@@ -55,9 +61,12 @@ void GLView::paintGL()
     QMatrix4x4 cameraProjViewM = cameraProjM * cameraViewM;
     QMatrix4x4 objToWorld;
 
+    glBindTexture(GL_TEXTURE_2D, _paintFbo->texture());
+
     _meshShader->bind();
     _meshShader->setUniformValue("objToWorld", objToWorld);
     _meshShader->setUniformValue("cameraPV", cameraProjViewM);
+    _meshShader->setUniformValue("paintTexture", 0);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -101,46 +110,61 @@ void GLView::paintGL()
 
     glDisable(GL_DEPTH_TEST);
 
+    // draw strokes onto paint FBO
     _paintFbo->bind();
+    glViewport(0,0,PAINT_FBO_WIDTH,PAINT_FBO_WIDTH);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0, PAINT_FBO_WIDTH, 0, PAINT_FBO_WIDTH, -1, 1);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+    glPointSize(20.0f);
     glBegin(GL_POINTS);
     foreach (Point2 p, _strokePoints) {
         glVertex2f(p.x(), p.y());
     }
     glEnd();
-
+    glViewport(0,0,width(),height());
     _paintFbo->release();
 
-    glEnable(GL_TEXTURE_2D);
+#if DEBUG_PAINT_LAYER
+    _drawPaintLayer();
+#endif
+}
+
+void GLView::_drawPaintLayer()
+{
+
+    QMatrix4x4 cameraProjViewM;
+    cameraProjViewM.ortho(0, width(), 0, height(), -1, 1);
+
+    glBindTexture(GL_TEXTURE_2D, _paintFbo->texture());
+
+    _meshShader->bind();
+    _meshShader->setUniformValue("cameraPV", cameraProjViewM);
+    _meshShader->setUniformValue("paintTexture", 0);
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA,GL_ONE);
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0, width(), 0, height(), -1, 1);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
 
     glBindTexture(GL_TEXTURE_2D, _paintFbo->texture());
 
     glBegin(GL_QUADS);
-    glTexCoord2f(0,0);
-    glVertex2f(0,0);
-    glTexCoord2f(1,0);
-    glVertex2f(PAINT_FBO_WIDTH,0);
-    glTexCoord2f(1,1);
-    glVertex2f(PAINT_FBO_WIDTH,PAINT_FBO_WIDTH);
-    glTexCoord2f(0,1);
-    glVertex2f(0,PAINT_FBO_WIDTH);
+    {
+        glTexCoord2f(0,0);
+        glVertex2f(0,0);
+        glTexCoord2f(1,0);
+        glVertex2f(PAINT_FBO_WIDTH,0);
+        glTexCoord2f(1,1);
+        glVertex2f(PAINT_FBO_WIDTH,PAINT_FBO_WIDTH);
+        glTexCoord2f(0,1);
+        glVertex2f(0,PAINT_FBO_WIDTH);
+    }
     glEnd();
 
     glDisable(GL_BLEND);
-    glDisable(GL_TEXTURE_2D);
 }
+
 
 QGLFormat GLView::defaultFormat()
 {

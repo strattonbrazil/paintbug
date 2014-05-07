@@ -18,6 +18,7 @@ QGLShaderProgram* ShaderFactory::buildMeshShader(QObject *parent)
                        "varying vec3 worldPos;\n" \
                        "varying vec2 uv;\n" \
                        "uniform vec3 cameraPos;\n" \
+                       "uniform sampler2D paintTexture;\n" \
                        "void main() {\n" \
                        "    // determine frag distance to closest edge\n" \
                        "    //float nearD = min(min(dist[0],dist[1]),dist[2]);\n" \
@@ -39,6 +40,7 @@ QGLShaderProgram* ShaderFactory::buildMeshShader(QObject *parent)
                        "    //gl_FragData[1] = selectIndex;\n" \
                        "    gl_FragColor = vec4(1,0,0,1);\n" \
                        "    gl_FragColor = vec4(uv.x, uv.y, 0, 1);\n" \
+                       "    gl_FragColor = texture2D(paintTexture, uv.xy);\n" \
                        "}\n");
 
     //std::cout << vertSource.toStdString() << std::endl;
@@ -58,3 +60,39 @@ QGLShaderProgram* ShaderFactory::buildMeshShader(QObject *parent)
     return program;
 }
 
+QGLShaderProgram* ShaderFactory::buildPaintDebugShader(QObject *parent)
+{
+    QString vertSource("#version 120\n" \
+                       "uniform mat4 cameraPV;\n" \
+                       "varying vec2 uv;\n" \
+                       "void main() {\n" \
+                       "  uv = gl_MultiTexCoord0.xy;\n" \
+                       "  gl_Position = cameraPV * gl_Vertex;\n" \
+                       "}\n");
+
+    //std::cout << geomSource << std::endl;
+    QString fragSource("#version 120\n" \
+                       "varying vec3 worldPos;\n" \
+                       "varying vec2 uv;\n" \
+                       "uniform vec3 cameraPos;\n" \
+                       "uniform sampler2D paintTexture;\n" \
+                       "void main() {\n" \
+                       "    gl_FragColor = texture2D(paintTexture, uv.xy);\n" \
+                       "}\n");
+
+    //std::cout << vertSource.toStdString() << std::endl;
+    //std::cout << geomSource.toStdString() << std::endl;
+    //std::cout << fragSource.toStdString() << std::endl;
+
+    QGLShader* vertShader = new QGLShader(QGLShader::Vertex);
+    vertShader->compileSourceCode(vertSource);
+
+    QGLShader* fragShader = new QGLShader(QGLShader::Fragment);
+    fragShader->compileSourceCode(fragSource);
+
+    QGLShaderProgram* program = new QGLShaderProgram(parent);
+    program->addShader(vertShader);
+    program->addShader(fragShader);
+
+    return program;
+}

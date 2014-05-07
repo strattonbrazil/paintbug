@@ -26,11 +26,14 @@ signals:
 public slots:
 
 private:
+    void                     _drawPaintLayer();
+
     Transformable*     _camera;
     CameraScratch      _cameraScratch;
     bool               _validShaders;
     bool               _validFbos;
     QGLShaderProgram*  _meshShader;
+    QGLShaderProgram*  _paintDebugShader;
     QOpenGLFramebufferObject* _paintFbo;
     QList<Point2>      _strokePoints;
 };
