@@ -70,6 +70,7 @@ void GLView::paintGL()
     _meshShader->setUniformValue("objToWorld", objToWorld);
     _meshShader->setUniformValue("cameraPV", cameraProjViewM);
     _meshShader->setUniformValue("paintTexture", 0);
+    _meshShader->setUniformValue("paintFboWidth", PAINT_FBO_WIDTH);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -239,13 +240,13 @@ void GLView::mouseReleaseEvent(QMouseEvent* event)
         activeMouseButton = -1;
         Camera::mouseReleased(_camera, _cameraScratch, event);
     }
-    /*
-    else if (mouseMode == MouseMode::TOOL && _workTool == 0 && event->button() == activeMouseButton) {
+    else if (mouseMode == MouseMode::TOOL && event->button() == activeMouseButton) {
         mouseMode = MouseMode::FREE;
         activeMouseButton = -1;
 
-        cursorTool->mouseReleased(this, event);
+        //cursorTool->mouseReleased(this, event);
     }
+        /*
     else if (_workTool != 0) {
         if (_workTool->ravageMouse()) {
             if (_workTool != 0 && event->button() & Qt::LeftButton) {
