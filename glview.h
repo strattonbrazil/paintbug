@@ -6,6 +6,7 @@
 #include "transformable.h"
 #include "camera.h"
 #include "shader.h"
+#include "mesh.h"
 
 class GLView : public QGLWidget
 {
@@ -20,22 +21,27 @@ public:
     void                     mouseReleaseEvent(QMouseEvent* event);
     void                     mouseMoveEvent(QMouseEvent* event);
     void                     mouseDragEvent(QMouseEvent* event);
+    void                     keyPressEvent(QKeyEvent* event);
     QGLFormat                defaultFormat();
 signals:
 
 public slots:
 
 private:
-    void                     _drawPaintLayer();
+    void                     bakePaintLayer();
+    void                     drawPaintLayer();
 
-    Transformable*     _camera;
-    CameraScratch      _cameraScratch;
-    bool               _validShaders;
-    bool               _validFbos;
-    QGLShaderProgram*  _meshShader;
-    QGLShaderProgram*  _paintDebugShader;
+    Transformable*            _camera;
+    CameraScratch             _cameraScratch;
+    bool                      _validShaders;
+    bool                      _validFbos;
+    QGLShaderProgram*         _meshShader;
+    QGLShaderProgram*         _paintDebugShader;
     QOpenGLFramebufferObject* _paintFbo;
-    QList<Point2>      _strokePoints;
+    QOpenGLFramebufferObject* _transferFbo;
+    QList<Point2>             _strokePoints;
+    bool                      _bakePaintLayer;
+    QHash<Mesh*,GLuint>       _meshTextures; // need to find a better place for this
 };
 
 #endif // GLVIEW_H

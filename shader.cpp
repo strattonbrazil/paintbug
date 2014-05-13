@@ -17,13 +17,14 @@ QGLShaderProgram* ShaderFactory::buildMeshShader(QObject *parent)
                        "varying vec3 worldPos;\n"
                        "varying vec2 uv;\n"
                        "uniform vec3 cameraPos;\n"
+                       "uniform sampler2D meshTexture;\n"
                        "uniform sampler2D paintTexture;\n"
                        "uniform int paintFboWidth;\n"
                        "void main() {\n"
                        "    vec2 paintUvs = vec2(gl_FragCoord.x/paintFboWidth, gl_FragCoord.y/paintFboWidth); // faster to calc in vertex?\n"
                        "    //gl_FragColor = vec4(uv.x, uv.y, 0, 1);\n"
                        "    gl_FragColor = texture2D(paintTexture, paintUvs);\n"
-                       "    //if (paintUvs.t > 0.5) gl_FragColor = vec4(1,0,1,1);\n"
+                       "    if (uv.t > 0.5) gl_FragColor = texture2D(meshTexture, uv);\n"
                        "}\n");
 
     QGLShader* vertShader = new QGLShader(QGLShader::Vertex);

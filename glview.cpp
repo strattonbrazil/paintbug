@@ -24,6 +24,9 @@ GLView::GLView(QWidget *parent) :
     _camera = new Camera();
     _validShaders = false;
     _validFbos = false;
+    _bakePaintLayer = false;
+
+    this->setFocus();
 }
 
 void GLView::resizeGL(int w, int h)
@@ -51,8 +54,14 @@ void GLView::paintGL()
         glClearColor(0,0,0,0); // only red is used
         glClear(GL_COLOR_BUFFER_BIT);
         _paintFbo->release();
+
+        _transferFbo = new QOpenGLFramebufferObject(PAINT_FBO_WIDTH, PAINT_FBO_WIDTH);
+
         _validFbos = true;
     }
+
+    if (_bakePaintLayer)
+        bakePaintLayer();
 
     glEnable(GL_DEPTH_TEST);
 
@@ -69,9 +78,11 @@ void GLView::paintGL()
     _meshShader->bind();
     _meshShader->setUniformValue("objToWorld", objToWorld);
     _meshShader->setUniformValue("cameraPV", cameraProjViewM);
-    _meshShader->setUniformValue("paintTexture", 0);
+    _meshShader->setUniformValue("meshTexture", 0);
+    _meshShader->setUniformValue("paintTexture", 1);
     _meshShader->setUniformValue("paintFboWidth", PAINT_FBO_WIDTH);
 
+    // used for non-shader drawing later
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glLoadMatrixf(cameraProjM.data());
@@ -86,6 +97,33 @@ void GLView::paintGL()
     while (meshes.hasNext()) {
         meshes.next();
         Mesh* mesh = meshes.value();
+
+        // make sure a texture exists for this mesh
+        if (!_meshTextures.contains(mesh)) {
+            GLuint textureId;
+            glGenTextures(1, &textureId);
+
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, textureId);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+
+            _transferFbo->bind();
+            glClearColor(1,0.5,.5,1);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 256, 256, 0);
+
+            _transferFbo->release();
+
+            _meshTextures.insert(mesh, textureId);
+        }
+        _meshShader->setUniformValue("meshTexture", (GLuint)1);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, _meshTextures[mesh]);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, _paintFbo->texture());
+        glActiveTexture(GL_TEXTURE0);
 
         glBegin(GL_TRIANGLES);
         {
@@ -132,17 +170,26 @@ void GLView::paintGL()
     _paintFbo->release();
 
 #if DEBUG_PAINT_LAYER
-    _drawPaintLayer();
+    drawPaintLayer();
 #endif
 }
 
-void GLView::_drawPaintLayer()
+void GLView::bakePaintLayer()
+{
+    std::cout << "baking paint layer" << std::endl;
+
+    // render the meshes in UV space onto their texture using the paintFBO
+
+    // clear paint layer
+
+    _bakePaintLayer = false;
+}
+
+void GLView::drawPaintLayer()
 {
 
     QMatrix4x4 cameraProjViewM;
     cameraProjViewM.ortho(0, width(), 0, height(), -1, 1);
-
-    glBindTexture(GL_TEXTURE_2D, _paintFbo->texture());
 
     _paintDebugShader->bind();
     _paintDebugShader->setUniformValue("cameraPV", cameraProjViewM);
@@ -195,6 +242,7 @@ void GLView::mousePressEvent(QMouseEvent* event)
     else if (mouseMode == MouseMode::FREE && event->button() & Qt::LeftButton) {
         _strokePoints.append(Point2(event->pos().x(), height()-event->pos().y()));
         mouseMode = MouseMode::TOOL;
+        activeMouseButton = event->button();
         /*
         if (_workTool != 0) {
             mouseMode = MouseMode::TOOL;
@@ -343,3 +391,14 @@ void GLView::mouseDragEvent(QMouseEvent* event)
 
 }
 
+void GLView::keyPressEvent(QKeyEvent *event)
+{
+    if (mouseMode == MouseMode::FREE) {
+        if (event->key() == Qt::Key_Space) {
+            _bakePaintLayer = true;
+            update();
+        }
+    }
+
+    // TODO: call base class if not using this event
+}
