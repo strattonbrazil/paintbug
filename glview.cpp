@@ -3,6 +3,7 @@
 #include <iostream>
 #include <QMatrix4x4>
 #include <QOpenGLFramebufferObjectFormat>
+#include <GL/glext.h>
 
 #include "camera.h"
 #include "scene.h"
@@ -78,9 +79,9 @@ void GLView::paintGL()
     _meshShader->bind();
     _meshShader->setUniformValue("objToWorld", objToWorld);
     _meshShader->setUniformValue("cameraPV", cameraProjViewM);
-    _meshShader->setUniformValue("meshTexture", 0);
-    _meshShader->setUniformValue("paintTexture", 1);
     _meshShader->setUniformValue("paintFboWidth", PAINT_FBO_WIDTH);
+    _meshShader->setUniformValue("brushColor", 1, 1, 0, 1);
+
 
     // used for non-shader drawing later
     glMatrixMode(GL_PROJECTION);
@@ -107,6 +108,10 @@ void GLView::paintGL()
             glBindTexture(GL_TEXTURE_2D, textureId);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
+            glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+            glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
             _transferFbo->bind();
             glClearColor(1,0.5,.5,1);
             glClear(GL_COLOR_BUFFER_BIT);
@@ -119,10 +124,14 @@ void GLView::paintGL()
         }
         _meshShader->setUniformValue("meshTexture", (GLuint)1);
 
+        _meshShader->setUniformValue("meshTexture", 0);
+        _meshShader->setUniformValue("paintTexture", 1);
+
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, _meshTextures[mesh]);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, _paintFbo->texture());
+        
         glActiveTexture(GL_TEXTURE0);
 
         glBegin(GL_TRIANGLES);

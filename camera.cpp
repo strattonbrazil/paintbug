@@ -11,7 +11,7 @@
 Camera::Camera() : Transformable()
 {
     resetLook();
-    _center = Point3(10.0,6.0,10.0);
+    _center = Point3(4.0,2.0,4.0);
     _yRot = 225;
     _upRot = 45;
     _distance = _center.length();
