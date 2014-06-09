@@ -1,9 +1,11 @@
 #include "shader.h"
 #include "util.h"
 
+#define VERSION_STRING "#version 120\n"
+
 QGLShaderProgram* ShaderFactory::buildMeshShader(QObject *parent)
 {
-    QString vertSource("#version 120\n"
+    QString vertSource(VERSION_STRING
                        "uniform mat4 objToWorld;\n"
                        "uniform mat4 cameraPV;\n"
                        "varying vec2 uv;\n"
@@ -13,7 +15,7 @@ QGLShaderProgram* ShaderFactory::buildMeshShader(QObject *parent)
                        "  gl_FrontColor = vec4(1,0,0,1);\n"
                        "}\n");
 
-    QString fragSource("#version 120\n"
+    QString fragSource(VERSION_STRING
                        "varying vec3 worldPos;\n"
                        "varying vec2 uv;\n"
                        "uniform vec3 cameraPos;\n"
@@ -23,7 +25,6 @@ QGLShaderProgram* ShaderFactory::buildMeshShader(QObject *parent)
                        "uniform int paintFboWidth;\n"
                        "void main() {\n"
                        "    vec2 paintUvs = vec2(gl_FragCoord.x/paintFboWidth, gl_FragCoord.y/paintFboWidth); // faster to calc in vertex?\n"
-                       "    //gl_FragColor = vec4(uv.x, uv.y, 0, 1);\n"
                        "    float paintIntensity = texture2D(paintTexture, paintUvs).r;\n"
                        "    vec4 paintColor = brushColor * paintIntensity;\n"
                        "    gl_FragColor = paintColor;\n"
@@ -45,7 +46,7 @@ QGLShaderProgram* ShaderFactory::buildMeshShader(QObject *parent)
 
 QGLShaderProgram* ShaderFactory::buildPaintDebugShader(QObject *parent)
 {
-    QString vertSource("#version 120\n" \
+    QString vertSource(VERSION_STRING
                        "uniform mat4 cameraPV;\n" \
                        "varying vec2 uv;\n" \
                        "void main() {\n" \
@@ -53,7 +54,7 @@ QGLShaderProgram* ShaderFactory::buildPaintDebugShader(QObject *parent)
                        "  gl_Position = cameraPV * gl_Vertex;\n" \
                        "}\n");
 
-    QString fragSource("#version 120\n"
+    QString fragSource(VERSION_STRING
                        "varying vec3 worldPos;\n"
                        "varying vec2 uv;\n"
                        "uniform vec3 cameraPos;\n"

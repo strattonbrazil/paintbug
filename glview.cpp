@@ -3,6 +3,7 @@
 #include <iostream>
 #include <QMatrix4x4>
 #include <QOpenGLFramebufferObjectFormat>
+#include <QColorDialog>
 #include <GL/glext.h>
 
 #include "camera.h"
@@ -11,9 +12,10 @@
 #define PAINT_FBO_WIDTH 2048
 
 #define DEBUG_PAINT_LAYER 0
+#define DRAW_MESH_TEXTURE 1
 
 namespace MouseMode {
-    enum { FREE, CAMERA, TOOL };
+    enum { FREE, CAMERA, TOOL, HUD };
 }
 
 int mouseMode = MouseMode::FREE;
@@ -26,8 +28,32 @@ GLView::GLView(QWidget *parent) :
     _validShaders = false;
     _validFbos = false;
     _bakePaintLayer = false;
+    _brushColor = QColor(255,0,0);
 
     this->setFocus();
+}
+
+void GLView::initializeGL()
+{
+    /*
+    GLenum err = glewInit();
+    if (GLEW_OK != err)
+    {
+
+        std::cout << "error with glew init: " << glewGetErrorString(err) << std::endl;
+    }
+    */
+}
+
+QGLFormat GLView::defaultFormat()
+{
+    QGLFormat format;
+    //format.setVersion(3,2);
+    format.setAlpha(true);
+    format.setStencil(true);
+    format.setVersion(3,1);
+    format.setProfile(QGLFormat::CoreProfile);
+    return format;
 }
 
 void GLView::resizeGL(int w, int h)
@@ -38,6 +64,10 @@ void GLView::resizeGL(int w, int h)
 
 void GLView::paintGL()
 {
+    QPainter painter;
+    painter.begin(this);
+    painter.beginNativePainting();
+
     if (!_validShaders) {
         _meshShader = ShaderFactory::buildMeshShader(this);
 #if DEBUG_PAINT_LAYER
@@ -76,12 +106,6 @@ void GLView::paintGL()
 
     glBindTexture(GL_TEXTURE_2D, _paintFbo->texture());
 
-    _meshShader->bind();
-    _meshShader->setUniformValue("objToWorld", objToWorld);
-    _meshShader->setUniformValue("cameraPV", cameraProjViewM);
-    _meshShader->setUniformValue("paintFboWidth", PAINT_FBO_WIDTH);
-    _meshShader->setUniformValue("brushColor", 1, 1, 0, 1);
-
 
     // used for non-shader drawing later
     glMatrixMode(GL_PROJECTION);
@@ -113,26 +137,71 @@ void GLView::paintGL()
 
 
             _transferFbo->bind();
-            glClearColor(1,0.5,.5,1);
+            glClearColor(1,.2,.5,1);
             glClear(GL_COLOR_BUFFER_BIT);
+
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+            glOrtho(0,1,0,1,-1,1);
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
+
+            glViewport(0, 0, 256, 256);
+
+            glColor3f(.8,.8,.8);
+            glBegin(GL_QUADS);
+            {
+                //glVertex2f(0,0);
+                //glVertex2f(1,0);
+                //glColor3f(.4,.4,.4);
+                //glVertex2f(1,1);
+                //glVertex2f(0,1);
+                glVertex2f(.25,.25);
+                glVertex2f(.75,.25);
+                glVertex2f(.75,.75);
+                glVertex2f(.25,.75);
+            }
+            glEnd();
 
             glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 256, 256, 0);
 
+
             _transferFbo->release();
+
+            glActiveTexture(GL_TEXTURE0);
+            QImage img("/tmp/lena.jpg");
+            QImage image = QGLWidget::convertToGLFormat(img);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0,0 , image.width(), image.height(),  GL_RGB, GL_UNSIGNED_BYTE, image.bits() );
+
+
+            glViewport(0, 0, width(), height());
 
             _meshTextures.insert(mesh, textureId);
         }
-        _meshShader->setUniformValue("meshTexture", (GLuint)1);
-
-        _meshShader->setUniformValue("meshTexture", 0);
-        _meshShader->setUniformValue("paintTexture", 1);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, _meshTextures[mesh]);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, _paintFbo->texture());
-        
         glActiveTexture(GL_TEXTURE0);
+
+        _meshShader->bind();
+        _meshShader->setUniformValue("objToWorld", objToWorld);
+        _meshShader->setUniformValue("cameraPV", cameraProjViewM);
+        _meshShader->setUniformValue("paintFboWidth", PAINT_FBO_WIDTH);
+        _meshShader->setUniformValue("brushColor", _brushColor.redF(), _brushColor.greenF(), _brushColor.blueF(), 1);
+        _meshShader->setUniformValue("meshTexture", 0);
+        _meshShader->setUniformValue("paintTexture", 1);
+
+
+
+
+        /*
+        std::cout << glBindMultiTextureEXT << std::endl;
+        glBindMultiTextureEXT(GL_TEXTURE0, GL_TEXTURE_2D, _meshTextures[mesh]);
+        glBindMultiTextureEXT(GL_TEXTURE1, GL_TEXTURE_2D, _paintFbo->texture());
+        std::cout << glBindMultiTextureEXT << std::endl;
+        */
 
         glBegin(GL_TRIANGLES);
         {
@@ -148,9 +217,14 @@ void GLView::paintGL()
             }
         }
         glEnd();
+
+        _meshShader->release();
     }
 
-    _meshShader->release();
+
+#if DRAW_MESH_TEXTURE
+    //drawMeshTexture();
+#endif
 
     glBegin(GL_LINES);
     for (int i = -10; i <= 10; i++) {
@@ -181,6 +255,28 @@ void GLView::paintGL()
 #if DEBUG_PAINT_LAYER
     drawPaintLayer();
 #endif
+
+    painter.endNativePainting();
+    renderHUD(painter);
+    painter.end();
+}
+
+void drawOutlinedText(QPainter &painter, int x, int y, char* text, QColor bgColor, QColor fgColor)
+{
+    painter.setPen(bgColor);
+    painter.drawText(x, y, text);
+    painter.setPen(fgColor);
+    painter.drawText(x-2, y-2, text);
+}
+
+void GLView::renderHUD(QPainter &painter)
+{
+    drawOutlinedText(painter, 20, height()-20, "Brush Color", QColor(0,0,0), QColor(255,255,255));
+
+    QFontMetrics fm(painter.font());
+    const int textHeight = fm.height();
+    _brushColorRect = QRect(20, height()-120-textHeight, 100, 100);
+    painter.fillRect(_brushColorRect, _brushColor);
 }
 
 void GLView::bakePaintLayer()
@@ -226,16 +322,35 @@ void GLView::drawPaintLayer()
     _paintDebugShader->release();
 }
 
-
-QGLFormat GLView::defaultFormat()
+void GLView::drawMeshTexture(GLuint meshTexture)
 {
-    QGLFormat format;
-       //format.setVersion(3,2);
-    format.setAlpha(true);
-    format.setStencil(true);
-    format.setVersion(3,1);
-    format.setProfile(QGLFormat::CoreProfile);
-    return format;
+    QMatrix4x4 cameraProjViewM;
+    cameraProjViewM.ortho(0, width(), 0, height(), -1, 1);
+
+    _paintDebugShader->bind();
+    _paintDebugShader->setUniformValue("cameraPV", cameraProjViewM);
+    _paintDebugShader->setUniformValue("paintTexture", 0);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glBindTexture(GL_TEXTURE_2D, meshTexture);
+
+    glBegin(GL_QUADS);
+    {
+        glTexCoord2f(0,0);
+        glVertex2f(20,20);
+        glTexCoord2f(1,0);
+        glVertex2f(276,20);
+        glTexCoord2f(1,1);
+        glVertex2f(276,276);
+        glTexCoord2f(0,1);
+        glVertex2f(20,276);
+    }
+    glEnd();
+
+    glDisable(GL_BLEND);
+    _paintDebugShader->release();
 }
 
 void GLView::mousePressEvent(QMouseEvent* event)
@@ -249,9 +364,14 @@ void GLView::mousePressEvent(QMouseEvent* event)
         Camera::mousePressed(_camera, _cameraScratch, event);
     }
     else if (mouseMode == MouseMode::FREE && event->button() & Qt::LeftButton) {
-        _strokePoints.append(Point2(event->pos().x(), height()-event->pos().y()));
-        mouseMode = MouseMode::TOOL;
-        activeMouseButton = event->button();
+        if (_brushColorRect.contains(event->pos())) { // HUD?
+            mouseMode = MouseMode::HUD;
+            activeMouseButton = event->button();
+        } else {
+            _strokePoints.append(Point2(event->pos().x(), height()-event->pos().y()));
+            mouseMode = MouseMode::TOOL;
+            activeMouseButton = event->button();
+        }
         /*
         if (_workTool != 0) {
             mouseMode = MouseMode::TOOL;
@@ -297,7 +417,17 @@ void GLView::mouseReleaseEvent(QMouseEvent* event)
         activeMouseButton = -1;
         Camera::mouseReleased(_camera, _cameraScratch, event);
     }
+    else if (mouseMode == MouseMode::HUD && event->button() == activeMouseButton) {
+        if (_brushColorRect.contains(event->pos())) { // HUD?
+            _brushColor = QColorDialog::getColor(_brushColor, this, "Brush Color");
+        }
+
+        mouseMode = MouseMode::FREE;
+        activeMouseButton = -1;
+    }
     else if (mouseMode == MouseMode::TOOL && event->button() == activeMouseButton) {
+
+
         mouseMode = MouseMode::FREE;
         activeMouseButton = -1;
 

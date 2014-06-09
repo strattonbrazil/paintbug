@@ -1,6 +1,8 @@
 #ifndef GLVIEW_H
 #define GLVIEW_H
 
+//#include <GL/glew.h>
+
 #include <QGLWidget>
 #include <QOpenGLFramebufferObject>
 #include "transformable.h"
@@ -13,6 +15,8 @@ class GLView : public QGLWidget
     Q_OBJECT
 public:
     explicit GLView(QWidget *parent = 0);
+    void initializeGL();
+    QGLFormat defaultFormat();
     void resizeGL(int w, int h);
     void paintGL();
 
@@ -22,7 +26,6 @@ public:
     void                     mouseMoveEvent(QMouseEvent* event);
     void                     mouseDragEvent(QMouseEvent* event);
     void                     keyPressEvent(QKeyEvent* event);
-    QGLFormat                defaultFormat();
 signals:
 
 public slots:
@@ -30,6 +33,8 @@ public slots:
 private:
     void                     bakePaintLayer();
     void                     drawPaintLayer();
+    void                     drawMeshTexture(GLuint meshTexture);
+    void                     renderHUD(QPainter &painter);
 
     Transformable*            _camera;
     CameraScratch             _cameraScratch;
@@ -42,6 +47,8 @@ private:
     QList<Point2>             _strokePoints;
     bool                      _bakePaintLayer;
     QHash<Mesh*,GLuint>       _meshTextures; // need to find a better place for this
+    QColor                    _brushColor;
+    QRect                     _brushColorRect;
 };
 
 #endif // GLVIEW_H
