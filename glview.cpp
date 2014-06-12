@@ -70,6 +70,7 @@ void GLView::paintGL()
 
     if (!_validShaders) {
         _meshShader = ShaderFactory::buildMeshShader(this);
+        _bakeShader = ShaderFactory::buildBakeShader(this);
 #if DEBUG_PAINT_LAYER
         _paintDebugShader = ShaderFactory::buildPaintDebugShader(this);
 #endif
@@ -91,8 +92,8 @@ void GLView::paintGL()
         _validFbos = true;
     }
 
-    if (_bakePaintLayer)
-        bakePaintLayer();
+    //if (_bakePaintLayer)
+        //bakePaintLayer();
 
     glEnable(GL_DEPTH_TEST);
 
@@ -219,6 +220,9 @@ void GLView::paintGL()
         glEnd();
 
         _meshShader->release();
+
+        if (_bakePaintLayer)
+            bakePaintLayer();
     }
 
 
@@ -281,11 +285,54 @@ void GLView::renderHUD(QPainter &painter)
 
 void GLView::bakePaintLayer()
 {
-    std::cout << "baking paint layer" << std::endl;
+    Scene* scene = Scene::activeScene();
+
+    glViewport(200, 0, 256, 256);
+
+    //QMatrix4x4 cameraProjM = Camera::getProjMatrix(_camera, width(), height());
+    //QMatrix4x4 cameraViewM = Camera::getViewMatrix(_camera, width(), height());
+
+
+    QMatrix4x4 cameraProjViewM;
+    cameraProjViewM.ortho(0,1,0,1,-1,1);
+    QMatrix4x4 objToWorld;
 
     // render the meshes in UV space onto their texture using the paintFBO
+    // render each mesh
+    QHashIterator<QString,Mesh*> meshes = scene->meshes();
+    while (meshes.hasNext()) {
+        meshes.next();
+        Mesh* mesh = meshes.value();
 
+        _bakeShader->bind();
+        _bakeShader->setUniformValue("objToWorld", objToWorld);
+        _bakeShader->setUniformValue("cameraPV", cameraProjViewM);
+
+        //_meshShader->setUniformValue("brushColor", _brushColor.redF(), _brushColor.greenF(), _brushColor.blueF(), 1);
+        //_meshShader->setUniformValue("meshTexture", 0);
+        //_meshShader->setUniformValue("paintTexture", 1);
+
+        glBegin(GL_TRIANGLES);
+        {
+            const int NUM_TRIANGLES = mesh->numTriangles();
+            for (int i = 0; i < NUM_TRIANGLES; i++) {
+                for (int j = 0; j < 3; j++) {
+                    const unsigned int vertIndex = mesh->_triangleIndices[i*3+j];
+                    Point3 vert = mesh->_vertices[vertIndex];
+                    Point2 uv = mesh->_uvs[vertIndex];
+                    //glTexCoord2f(uv.x(), uv.y());
+                    //glVertex3f(vert.x(), vert.y(), vert.z());
+                    glVertex2f(uv.x(), uv.y());
+                }
+            }
+        }
+        glEnd();
+
+        _bakeShader->release();
+    }
     // clear paint layer
+
+    glViewport(0, 0, width(), height());
 
     _bakePaintLayer = false;
 }

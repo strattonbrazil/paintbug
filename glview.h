@@ -41,6 +41,7 @@ private:
     bool                      _validShaders;
     bool                      _validFbos;
     QGLShaderProgram*         _meshShader;
+    QGLShaderProgram*         _bakeShader;
     QGLShaderProgram*         _paintDebugShader;
     QOpenGLFramebufferObject* _paintFbo;
     QOpenGLFramebufferObject* _transferFbo;

@@ -26,9 +26,41 @@ QGLShaderProgram* ShaderFactory::buildMeshShader(QObject *parent)
                        "void main() {\n"
                        "    vec2 paintUvs = vec2(gl_FragCoord.x/paintFboWidth, gl_FragCoord.y/paintFboWidth); // faster to calc in vertex?\n"
                        "    float paintIntensity = texture2D(paintTexture, paintUvs).r;\n"
-                       "    vec4 paintColor = brushColor * paintIntensity;\n"
-                       "    gl_FragColor = paintColor;\n"
-                       "    if (uv.t > 0.5) gl_FragColor = texture2D(meshTexture, uv);\n"
+                       "    //vec4 paintColor = brushColor * paintIntensity;\n"
+                       "    vec4 meshColor = texture2D(meshTexture, uv);\n"
+                       "    vec3 diffuseColor = mix(meshColor.rgb, brushColor.rgb, paintIntensity);"
+                       "    gl_FragColor = vec4(diffuseColor, 1);\n"
+                       "}\n");
+
+    QGLShader* vertShader = new QGLShader(QGLShader::Vertex);
+    vertShader->compileSourceCode(vertSource);
+
+    QGLShader* fragShader = new QGLShader(QGLShader::Fragment);
+    fragShader->compileSourceCode(fragSource);
+
+    QGLShaderProgram* program = new QGLShaderProgram(parent);
+    program->addShader(vertShader);
+    program->addShader(fragShader);
+
+    return program;
+}
+
+QGLShaderProgram* ShaderFactory::buildBakeShader(QObject *parent)
+{
+    QString vertSource(VERSION_STRING
+                       "uniform mat4 objToWorld;\n"
+                       "uniform mat4 cameraPV;\n"
+                       "varying vec2 uv;\n"
+                       "void main() {\n"
+                       "  uv = gl_Vertex.xy;\n"
+                       "  gl_Position = cameraPV * objToWorld * gl_Vertex;\n"
+                       "  gl_FrontColor = vec4(1,0,0,1);\n"
+                       "}\n");
+
+    QString fragSource(VERSION_STRING
+                       "varying vec2 uv;\n"
+                       "void main() {\n"
+                       "    gl_FragColor = vec4(uv.x,uv.y,.1,1);\n"
                        "}\n");
 
     QGLShader* vertShader = new QGLShader(QGLShader::Vertex);
