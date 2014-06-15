@@ -249,6 +249,7 @@ void GLView::paintGL()
     glLoadIdentity();
     glPointSize(20.0f);
     glBegin(GL_POINTS);
+    glColor4f(1,1,1,1);
     foreach (Point2 p, _strokePoints) {
         glVertex2f(p.x(), p.y());
     }
@@ -289,13 +290,12 @@ void GLView::bakePaintLayer()
 
     glViewport(200, 0, 256, 256);
 
-    //QMatrix4x4 cameraProjM = Camera::getProjMatrix(_camera, width(), height());
-    //QMatrix4x4 cameraViewM = Camera::getViewMatrix(_camera, width(), height());
+    QMatrix4x4 cameraProjM = Camera::getProjMatrix(_camera, width(), height());
+    QMatrix4x4 cameraViewM = Camera::getViewMatrix(_camera, width(), height());
+    QMatrix4x4 cameraProjViewM = cameraProjM * cameraViewM;
 
-
-    QMatrix4x4 cameraProjViewM;
-    cameraProjViewM.ortho(0,1,0,1,-1,1);
-    QMatrix4x4 objToWorld;
+    QMatrix4x4 orthoProjViewM;
+    orthoProjViewM.ortho(0,1,0,1,-1,1);
 
     // render the meshes in UV space onto their texture using the paintFBO
     // render each mesh
@@ -304,9 +304,20 @@ void GLView::bakePaintLayer()
         meshes.next();
         Mesh* mesh = meshes.value();
 
+        QMatrix4x4 objToWorld;
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, _meshTextures[mesh]);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, _paintFbo->texture());
+        glActiveTexture(GL_TEXTURE0);
+
         _bakeShader->bind();
         _bakeShader->setUniformValue("objToWorld", objToWorld);
+        _bakeShader->setUniformValue("orthoPV", orthoProjViewM);
         _bakeShader->setUniformValue("cameraPV", cameraProjViewM);
+        _bakeShader->setUniformValue("meshTexture", 0);
+        _bakeShader->setUniformValue("paintTexture", 1);
 
         //_meshShader->setUniformValue("brushColor", _brushColor.redF(), _brushColor.greenF(), _brushColor.blueF(), 1);
         //_meshShader->setUniformValue("meshTexture", 0);
@@ -322,6 +333,7 @@ void GLView::bakePaintLayer()
                     Point2 uv = mesh->_uvs[vertIndex];
                     //glTexCoord2f(uv.x(), uv.y());
                     //glVertex3f(vert.x(), vert.y(), vert.z());
+                    glTexCoord3f(vert.x(), vert.y(), vert.z());
                     glVertex2f(uv.x(), uv.y());
                 }
             }
