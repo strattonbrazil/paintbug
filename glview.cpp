@@ -312,12 +312,16 @@ void GLView::bakePaintLayer()
         glBindTexture(GL_TEXTURE_2D, _paintFbo->texture());
         glActiveTexture(GL_TEXTURE0);
 
+        QVector2D targetScale = QVector2D(width() / (float)PAINT_FBO_WIDTH, height() / (float)PAINT_FBO_WIDTH);
+        std::cout << targetScale.y() << std::endl;
+
         _bakeShader->bind();
         _bakeShader->setUniformValue("objToWorld", objToWorld);
         _bakeShader->setUniformValue("orthoPV", orthoProjViewM);
         _bakeShader->setUniformValue("cameraPV", cameraProjViewM);
         _bakeShader->setUniformValue("meshTexture", 0);
         _bakeShader->setUniformValue("paintTexture", 1);
+        _bakeShader->setUniformValue("targetScale", targetScale);
 
         //_meshShader->setUniformValue("brushColor", _brushColor.redF(), _brushColor.greenF(), _brushColor.blueF(), 1);
         //_meshShader->setUniformValue("meshTexture", 0);
