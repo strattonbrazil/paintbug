@@ -64,15 +64,19 @@ QGLShaderProgram* ShaderFactory::buildBakeShader(QObject *parent)
     QString fragSource(VERSION_STRING
                        "uniform sampler2D meshTexture;\n"
                        "uniform sampler2D paintTexture;\n"
+                       "uniform vec4 brushColor;\n"
                        "varying vec2 meshUv;\n"
                        "varying vec4 cameraPos;\n"
                        "uniform vec2 targetScale;\n"
                        "void main() {\n"
                        "    vec2 screenPos = 0.5 * (vec2(1,1) + cameraPos.xy / cameraPos.w);\n"
                        "    vec2 paintUv = screenPos * targetScale;\n"
-                       "    gl_FragColor = texture2D(meshTexture, meshUv);\n"
+                       "    float paintIntensity = texture2D(paintTexture, paintUv).r;\n"
+                       "    vec4 meshColor = texture2D(meshTexture, meshUv);\n"
+                       "    vec3 diffuseColor = mix(meshColor.rgb, brushColor.rgb, paintIntensity);\n"
                        "    //if (screenPos.x > .5)\n"
-                       "        gl_FragColor = texture2D(paintTexture, paintUv);\n"
+                       "        //gl_FragColor = texture2D(paintTexture, paintUv);\n"
+                       "    gl_FragColor = vec4(diffuseColor, 1);\n"
                        "}\n");
 
     QGLShader* vertShader = new QGLShader(QGLShader::Vertex);

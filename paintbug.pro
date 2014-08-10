@@ -31,3 +31,6 @@ HEADERS  += mainwindow.h \
     mesh.h \
     scene.h
 FORMS    += mainwindow.ui
+
+OTHER_FILES += \
+    README.md

@@ -288,7 +288,7 @@ void GLView::bakePaintLayer()
 {
     Scene* scene = Scene::activeScene();
 
-    glViewport(200, 0, 256, 256);
+    glViewport(0, 0, 256, 256);
 
     QMatrix4x4 cameraProjM = Camera::getProjMatrix(_camera, width(), height());
     QMatrix4x4 cameraViewM = Camera::getViewMatrix(_camera, width(), height());
@@ -313,7 +313,6 @@ void GLView::bakePaintLayer()
         glActiveTexture(GL_TEXTURE0);
 
         QVector2D targetScale = QVector2D(width() / (float)PAINT_FBO_WIDTH, height() / (float)PAINT_FBO_WIDTH);
-        std::cout << targetScale.y() << std::endl;
 
         _bakeShader->bind();
         _bakeShader->setUniformValue("objToWorld", objToWorld);
@@ -322,6 +321,7 @@ void GLView::bakePaintLayer()
         _bakeShader->setUniformValue("meshTexture", 0);
         _bakeShader->setUniformValue("paintTexture", 1);
         _bakeShader->setUniformValue("targetScale", targetScale);
+        _bakeShader->setUniformValue("brushColor", _brushColor.redF(), _brushColor.greenF(), _brushColor.blueF(), 1);
 
         //_meshShader->setUniformValue("brushColor", _brushColor.redF(), _brushColor.greenF(), _brushColor.blueF(), 1);
         //_meshShader->setUniformValue("meshTexture", 0);
