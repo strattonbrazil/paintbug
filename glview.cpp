@@ -136,7 +136,6 @@ void GLView::paintGL()
             glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
             glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-
             _transferFbo->bind();
             glClearColor(1,.2,.5,1);
             glClear(GL_COLOR_BUFFER_BIT);
@@ -152,11 +151,6 @@ void GLView::paintGL()
             glColor3f(.8,.8,.8);
             glBegin(GL_QUADS);
             {
-                //glVertex2f(0,0);
-                //glVertex2f(1,0);
-                //glColor3f(.4,.4,.4);
-                //glVertex2f(1,1);
-                //glVertex2f(0,1);
                 glVertex2f(.25,.25);
                 glVertex2f(.75,.25);
                 glVertex2f(.75,.75);
@@ -169,10 +163,10 @@ void GLView::paintGL()
 
             _transferFbo->release();
 
-            glActiveTexture(GL_TEXTURE0);
-            QImage img("/tmp/lena.jpg");
-            QImage image = QGLWidget::convertToGLFormat(img);
-            glTexSubImage2D(GL_TEXTURE_2D, 0, 0,0 , image.width(), image.height(),  GL_RGB, GL_UNSIGNED_BYTE, image.bits() );
+            //glActiveTexture(GL_TEXTURE0);
+            //QImage img("/tmp/lena.jpg");
+            //QImage image = QGLWidget::convertToGLFormat(img);
+            //glTexSubImage2D(GL_TEXTURE_2D, 0, 0,0 , image.width(), image.height(),  GL_RGB, GL_UNSIGNED_BYTE, image.bits() );
 
 
             glViewport(0, 0, width(), height());
@@ -193,16 +187,6 @@ void GLView::paintGL()
         _meshShader->setUniformValue("brushColor", _brushColor.redF(), _brushColor.greenF(), _brushColor.blueF(), 1);
         _meshShader->setUniformValue("meshTexture", 0);
         _meshShader->setUniformValue("paintTexture", 1);
-
-
-
-
-        /*
-        std::cout << glBindMultiTextureEXT << std::endl;
-        glBindMultiTextureEXT(GL_TEXTURE0, GL_TEXTURE_2D, _meshTextures[mesh]);
-        glBindMultiTextureEXT(GL_TEXTURE1, GL_TEXTURE_2D, _paintFbo->texture());
-        std::cout << glBindMultiTextureEXT << std::endl;
-        */
 
         glBegin(GL_TRIANGLES);
         {
@@ -288,6 +272,8 @@ void GLView::bakePaintLayer()
 {
     Scene* scene = Scene::activeScene();
 
+    _transferFbo->bind();
+
     glViewport(0, 0, 256, 256);
 
     QMatrix4x4 cameraProjM = Camera::getProjMatrix(_camera, width(), height());
@@ -345,10 +331,17 @@ void GLView::bakePaintLayer()
         glEnd();
 
         _bakeShader->release();
+
+
+        // copy bake back into mesh texture
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, _meshTextures[mesh]);
+        glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 256, 256, 0);
     }
-    // clear paint layer
 
     glViewport(0, 0, width(), height());
+
+    _transferFbo->release();
 
     _bakePaintLayer = false;
 }

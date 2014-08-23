@@ -1,8 +1,6 @@
 #ifndef GLVIEW_H
 #define GLVIEW_H
 
-//#include <GL/glew.h>
-
 #include <QGLWidget>
 #include <QOpenGLFramebufferObject>
 #include "transformable.h"
