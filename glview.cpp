@@ -137,7 +137,7 @@ void GLView::paintGL()
             glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
             _transferFbo->bind();
-            glClearColor(1,.2,.5,1);
+            glClearColor(.5,.5,.5,1);
             glClear(GL_COLOR_BUFFER_BIT);
 
             glMatrixMode(GL_PROJECTION);
@@ -309,10 +309,6 @@ void GLView::bakePaintLayer()
         _bakeShader->setUniformValue("targetScale", targetScale);
         _bakeShader->setUniformValue("brushColor", _brushColor.redF(), _brushColor.greenF(), _brushColor.blueF(), 1);
 
-        //_meshShader->setUniformValue("brushColor", _brushColor.redF(), _brushColor.greenF(), _brushColor.blueF(), 1);
-        //_meshShader->setUniformValue("meshTexture", 0);
-        //_meshShader->setUniformValue("paintTexture", 1);
-
         glBegin(GL_TRIANGLES);
         {
             const int NUM_TRIANGLES = mesh->numTriangles();
@@ -339,9 +335,17 @@ void GLView::bakePaintLayer()
         glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 256, 256, 0);
     }
 
-    glViewport(0, 0, width(), height());
-
     _transferFbo->release();
+
+    // clear paint buffer
+    _paintFbo->bind();
+    glClearColor(0,0,0,0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    _paintFbo->release();
+
+    _strokePoints.clear();
+
+    glViewport(0, 0, width(), height());
 
     _bakePaintLayer = false;
 }
@@ -412,7 +416,7 @@ void GLView::drawMeshTexture(GLuint meshTexture)
 void GLView::mousePressEvent(QMouseEvent* event)
 {
     //bool altDown = event->modifiers() & Qt::AltModifier;
-    bool camDown = event->modifiers() & Qt::MetaModifier;
+    bool camDown = event->modifiers() & Qt::AltModifier;
 
     if (mouseMode == MouseMode::FREE && camDown) {
         mouseMode = MouseMode::CAMERA;
