@@ -4,6 +4,7 @@
 #include <QMatrix4x4>
 #include <QOpenGLFramebufferObjectFormat>
 #include <QColorDialog>
+#include <QMetaEnum>
 #include <GL/glext.h>
 
 #include "camera.h"
@@ -33,8 +34,31 @@ GLView::GLView(QWidget *parent) :
     this->setFocus();
 }
 
+bool GLView::event(QEvent *e) {
+    // HACK: this is so the ui file can dynamically set the various GL view types
+    if (e->type() == QEvent::DynamicPropertyChange) {
+        bool handled = QGLWidget::event(e);
+        initializeView();
+        return handled;
+    }
+    return QGLWidget::event(e); // don't forget this
+}
+
+void GLView::initializeView()
+{
+    QString windowType = this->property("windowType").toString();
+    if (windowType.compare(PERSPECTIVE_VIEW_TYPE) == 0) {
+
+    }
+    else if (windowType.compare(UV_VIEW_TYPE) == 0) {
+        std::cout << "uv" << std::endl;
+    }
+}
+
 void GLView::initializeGL()
 {
+    std::cout << "GL initialized" << std::endl;
+    //std::cout << "ack: " << this->property("windowType").toString() << std::endl;
     /*
     GLenum err = glewInit();
     if (GLEW_OK != err)

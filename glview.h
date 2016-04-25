@@ -8,11 +8,21 @@
 #include "shader.h"
 #include "mesh.h"
 
+#define PERSPECTIVE_VIEW_TYPE "PERSPECTIVE"
+#define UV_VIEW_TYPE "UV"
+
+enum ViewType {
+    PERSPECTIVE,
+    UV
+};
+
 class GLView : public QGLWidget
 {
     Q_OBJECT
+
 public:
     explicit GLView(QWidget *parent = 0);
+
     void initializeGL();
     QGLFormat defaultFormat();
     void resizeGL(int w, int h);
@@ -24,6 +34,9 @@ public:
     void                     mouseMoveEvent(QMouseEvent* event);
     void                     mouseDragEvent(QMouseEvent* event);
     void                     keyPressEvent(QKeyEvent* event);
+
+protected:
+    bool event(QEvent *e) override;
 signals:
 
 public slots:
@@ -33,6 +46,7 @@ private:
     void                     drawPaintLayer();
     void                     drawMeshTexture(GLuint meshTexture);
     void                     renderHUD(QPainter &painter);
+    void                     initializeView();
 
     Transformable*            _camera;
     CameraScratch             _cameraScratch;

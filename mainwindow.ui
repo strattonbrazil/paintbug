@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>530</width>
-    <height>590</height>
+    <height>596</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,13 +16,40 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
-     <widget class="GLView" name="glview" native="true">
-      <property name="minimumSize">
-       <size>
-        <width>512</width>
-        <height>512</height>
-       </size>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>0</number>
       </property>
+      <widget class="QWidget" name="defaultPerspectiveTab">
+       <attribute name="title">
+        <string>Perspective</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="GLView" name="defaultPerspectiveView" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>512</width>
+            <height>512</height>
+           </size>
+          </property>
+          <property name="windowType" stdset="0">
+           <string>PERSPECTIVE</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="defaultUVTab">
+       <attribute name="title">
+        <string>UV</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="GLView" name="defaultUVView" native="true"/>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -33,7 +60,7 @@
      <x>0</x>
      <y>0</y>
      <width>530</width>
-     <height>25</height>
+     <height>27</height>
     </rect>
    </property>
   </widget>

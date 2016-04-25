@@ -20,7 +20,8 @@ SOURCES += main.cpp\
     util.cpp \
     shader.cpp \
     mesh.cpp \
-    scene.cpp
+    scene.cpp \
+    src/views/defaultperspectiveview.cpp
 
 HEADERS  += mainwindow.h \
             glview.h \
@@ -29,7 +30,8 @@ HEADERS  += mainwindow.h \
     util.h \
     shader.h \
     mesh.h \
-    scene.h
+    scene.h \
+    src/views/defaultperspectiveview.h
 FORMS    += mainwindow.ui
 
 OTHER_FILES += \
