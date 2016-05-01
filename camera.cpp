@@ -8,7 +8,7 @@
 // used by panning
 
 
-Camera::Camera() : Transformable()
+PerspectiveCamera::PerspectiveCamera() : Camera()
 {
     resetLook();
     _center = Point3(4.0,2.0,4.0);
@@ -22,31 +22,31 @@ Camera::Camera() : Transformable()
 }
 
 /*
-Point3 Camera::eye() { return _center; }
-Vector3 Camera::upDir() {
+Point3 PerspectiveCamera::eye() { return _center; }
+Vector3 PerspectiveCamera::upDir() {
     return _rotate.rotatedVector(Vector3(0,1,0));
 }
-Point3 Camera::lookat() { return _center + lookDir(); }
-Vector3 Camera::lookDir() { return _rotate.rotatedVector(Vector3(0,0,_distance)); }
-Vector3 Camera::leftDir() { return Vector3::crossProduct(upDir(), lookDir()).normalized(); }
+Point3 PerspectiveCamera::lookat() { return _center + lookDir(); }
+Vector3 PerspectiveCamera::lookDir() { return _rotate.rotatedVector(Vector3(0,0,_distance)); }
+Vector3 PerspectiveCamera::leftDir() { return Vector3::crossProduct(upDir(), lookDir()).normalized(); }
 */
 
-QMatrix4x4 Camera::getViewMatrix(Transformable* camera, int width, int height)
+QMatrix4x4 PerspectiveCamera::getViewMatrix(int width, int height)
 {
     QMatrix4x4 m;
-    m.lookAt(camera->eye(), camera->lookat(), camera->upDir());
+    m.lookAt(eye(), lookat(), upDir());
     return m;
 }
 
 /*
-QMatrix4x4 Camera::getProjMatrix(Camera* camera, int width, int height, float dx, float dy)
+QMatrix4x4 PerspectiveCamera::getProjMatrix(PerspectiveCamera* PerspectiveCamera, int width, int height, float dx, float dy)
 {
     // taken from gluPerspective docs
     float aspect = (float)width / (float)height;
     float zNear = 0.1f;
     float zFar = 1000.0f;
 
-    float top = tan(camera->fov()*3.14159/360.0) * zNear;
+    float top = tan(PerspectiveCamera->fov()*3.14159/360.0) * zNear;
     //float top = tan(fov*0.5) * zNear;
     float bottom = -top;
 
@@ -55,19 +55,23 @@ QMatrix4x4 Camera::getProjMatrix(Camera* camera, int width, int height, float dx
 
     QMatrix4x4 m;
     m.frustum(left+dx, right+dx, bottom+dy, top+dy, zNear, zFar);
-    //m.perspective(camera->fov(), aspect, zNear, zFar);
+    //m.perspective(PerspectiveCamera->fov(), aspect, zNear, zFar);
     return m;
 }
 */
 
-QMatrix4x4 Camera::getProjMatrix(Transformable* camera, int width, int height, float pixdx, float pixdy)
+QMatrix4x4 PerspectiveCamera::getProjMatrix(int width, int height)
 {
+    // can probably remove this now
+    float pixdx = 0;
+    float pixdy = 0;
+
     // taken from gluPerspective docs
     float aspect = (float)width / (float)height;
     float zNear = .1f;
     float zFar = 100.0f;
 
-    float top = tan(camera->fov()*3.14159/360.0) * zNear;
+    float top = tan(fov()*3.14159/360.0) * zNear;
     //float top = tan(fov*0.5) * zNear;
     float bottom = -top;
 
@@ -86,13 +90,13 @@ QMatrix4x4 Camera::getProjMatrix(Transformable* camera, int width, int height, f
 
     QMatrix4x4 m;
     m.frustum(left+dx, right+dx, bottom+dy, top+dy, zNear, zFar);
-    //m.perspective(camera->fov(), aspect, zNear, zFar);
+    //m.perspective(PerspectiveCamera->fov(), aspect, zNear, zFar);
     return m;
 }
 
 
 /*
-QMatrix4x4 Camera::getProjMatrix(Camera* camera, int width, int height, float offsetX, float offsetY)
+QMatrix4x4 PerspectiveCamera::getProjMatrix(PerspectiveCamera* PerspectiveCamera, int width, int height, float offsetX, float offsetY)
 {
     // taken from gluPerspective docs
     float aspect = (float)width / (float)height;
@@ -114,13 +118,13 @@ QMatrix4x4 Camera::getProjMatrix(Camera* camera, int width, int height, float of
             eyedy, focus);
 
     QMatrix4x4 m;
-    m.perspective(camera->fov(), aspect, zNear, zFar);
+    m.perspective(PerspectiveCamera->fov(), aspect, zNear, zFar);
     return m;
 }
 */
 
 #define PI 3.14159265359
-RotatePair Camera::aim(Vector3 dir)
+RotatePair PerspectiveCamera::aim(Vector3 dir)
 { // based on VTK aim
     double xzlen, yzlen, yrot, xrot;
 
@@ -164,7 +168,7 @@ RotatePair Camera::aim(Vector3 dir)
 }
 
 /*
-void Camera::flipYZ(RtMatrix m)
+void PerspectiveCamera::flipYZ(RtMatrix m)
 {
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
@@ -180,7 +184,7 @@ void Camera::flipYZ(RtMatrix m)
 }
 */
 
-void Camera::mousePressed(Transformable* camera, CameraScratch &scratch, QMouseEvent *event)
+void PerspectiveCamera::mousePressed(CameraScratch &scratch, QMouseEvent *event)
 {
     scratch.pickX = event->pos().x();
     scratch.pickY = event->pos().y();
@@ -191,12 +195,12 @@ void Camera::mousePressed(Transformable* camera, CameraScratch &scratch, QMouseE
     else if (event->button() == Qt::MidButton) {
         scratch.moveType = MoveType::PANNING;
 
-        scratch.origEye = camera->eye();
+        scratch.origEye = eye();
         //Vector3 f = (lookat() - eye()).normalized();
         //Vector3 s = Vector3::crossProduct(f, upDir());
-        scratch.origUp = camera->upDir();
+        scratch.origUp = upDir();
         //origUp = Vector3::crossProduct(s, f);
-        scratch.origLeft = camera->leftDir();
+        scratch.origLeft = leftDir();
     } else if (event->button() == Qt::RightButton) {
         scratch.moveType = MoveType::TRUCKING;
     } else {
@@ -204,24 +208,24 @@ void Camera::mousePressed(Transformable* camera, CameraScratch &scratch, QMouseE
     }
 }
 
-void Camera::mouseReleased(Transformable* camera, CameraScratch &scratch, QMouseEvent *event)
+void PerspectiveCamera::mouseReleased(CameraScratch &scratch, QMouseEvent *event)
 {
     scratch.moveType = MoveType::NOT_MOVING;
 }
 
-void Camera::mouseDragged(Transformable* camera, CameraScratch &scratch, QMouseEvent *event)
+void PerspectiveCamera::mouseDragged(CameraScratch &scratch, QMouseEvent *event)
 {
     int xDiff = scratch.pickX - event->pos().x();
     int yDiff = scratch.pickY - event->pos().y();
 
     if (scratch.moveType == MoveType::ROTATING) {
-        Vector3 origLook = camera->eye() + camera->lookDir();
-        camera->setYRot(camera->yRot() + xDiff * 0.5f);
-        camera->setUpRot(camera->upRot() + yDiff * -0.5f);
+        Vector3 origLook = eye() + lookDir();
+        setYRot(yRot() + xDiff * 0.5f);
+        setUpRot(upRot() + yDiff * -0.5f);
 
         // move eye to look at original focal point (Maya style)
-        Vector3 lookAway = camera->lookDir() * -1;
-        camera->setCenter(origLook + lookAway);
+        Vector3 lookAway = lookDir() * -1;
+        setCenter(origLook + lookAway);
     }
     else if (scratch.moveType == MoveType::PANNING) {
         float panScale = 0.05f;
@@ -229,14 +233,49 @@ void Camera::mouseDragged(Transformable* camera, CameraScratch &scratch, QMouseE
         Vector3 mUp = scratch.origUp * -1.0f * yDiff * panScale;
         Vector3 mLeft = scratch.origLeft * -1.0f * xDiff * panScale;
 
-        camera->setCenter(camera->eye() + mUp + mLeft);
+        setCenter(eye() + mUp + mLeft);
     } else if (scratch.moveType == MoveType::TRUCKING) {
-        Point3 at = camera->lookat();
-        Vector3 l = camera->lookDir() * -0.01f * yDiff;
+        Point3 at = lookat();
+        Vector3 l = lookDir() * -0.01f * yDiff;
 
-        camera->setCenter(l + camera->center());
+        setCenter(l + center());
     }
 
     scratch.pickX = event->pos().x();
     scratch.pickY = event->pos().y();
+}
+
+OrthographicCamera::OrthographicCamera() : Camera()
+{
+}
+
+QMatrix4x4 OrthographicCamera::getViewMatrix(int width, int height)
+{
+    QMatrix4x4 m;
+    m.setToIdentity();
+    return m;
+}
+
+QMatrix4x4 OrthographicCamera::getProjMatrix(int width, int height)
+{
+
+    QMatrix4x4 m;
+    m.setToIdentity();
+    m.ortho(0.f, 10.f, 0.f, 10.f, -1.f, 1.f);
+    return m;
+}
+
+void OrthographicCamera::mousePressed(CameraScratch &scratch, QMouseEvent *event)
+{
+
+}
+
+void OrthographicCamera::mouseReleased(CameraScratch &scratch, QMouseEvent *event)
+{
+
+}
+
+void OrthographicCamera::mouseDragged(CameraScratch &scratch, QMouseEvent *event)
+{
+
 }

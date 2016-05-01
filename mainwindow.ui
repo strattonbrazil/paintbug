@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>530</width>
-    <height>596</height>
+    <width>552</width>
+    <height>652</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,7 +26,7 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="GLView" name="defaultPerspectiveView" native="true">
+         <widget class="PerspectiveView" name="defaultPerspectiveView" native="true">
           <property name="minimumSize">
            <size>
             <width>512</width>
@@ -46,7 +46,7 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="GLView" name="defaultUVView" native="true"/>
+         <widget class="UVView" name="defaultUVView" native="true"/>
         </item>
        </layout>
       </widget>
@@ -59,7 +59,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>530</width>
+     <width>552</width>
      <height>27</height>
     </rect>
    </property>
@@ -77,9 +77,15 @@
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>GLView</class>
+   <class>PerspectiveView</class>
    <extends>QWidget</extends>
-   <header>glview.h</header>
+   <header>views/perspectiveview.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>UVView</class>
+   <extends>QWidget</extends>
+   <header>views/uvview.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -11,6 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = paintbug
 TEMPLATE = app
 LIBS += -lglut -lassimp -lGLEW
+CONFIG += c++11
 
 SOURCES += main.cpp\
            mainwindow.cpp \
@@ -21,7 +22,8 @@ SOURCES += main.cpp\
     shader.cpp \
     mesh.cpp \
     scene.cpp \
-    src/views/defaultperspectiveview.cpp
+    views/perspectiveview.cpp \
+    views/uvview.cpp
 
 HEADERS  += mainwindow.h \
             glview.h \
@@ -31,7 +33,9 @@ HEADERS  += mainwindow.h \
     shader.h \
     mesh.h \
     scene.h \
-    src/views/defaultperspectiveview.h
+    views/perspectiveview.h \
+    views/uvview.h
+
 FORMS    += mainwindow.ui
 
 OTHER_FILES += \

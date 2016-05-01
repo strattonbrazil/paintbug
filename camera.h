@@ -28,25 +28,48 @@ public:
 
 class Camera : public Transformable
 {
+public:
+    virtual QMatrix4x4 getViewMatrix(int width, int height) = 0;
+    virtual QMatrix4x4 getProjMatrix(int width, int height) = 0;
+
+    virtual void mousePressed(CameraScratch &scratch, QMouseEvent* event) = 0;
+    virtual void mouseReleased(CameraScratch &scratch, QMouseEvent* event) = 0;
+    virtual void mouseDragged(CameraScratch &scratch, QMouseEvent* event) = 0;
+    //static QMatrix4x4            getOrthoMatrix(float left, float right, float bottom, float top, float near=-1, float far=1);
+};
+
+class PerspectiveCamera : public Camera
+{
     Q_OBJECT
 public:
-    int                          assetType() { return AssetType::CAMERA_ASSET; }
-    Camera();
-    static QMatrix4x4            getViewMatrix(Transformable* camera, int width, int height);
-    //static QMatrix4x4            getProjMatrix(Camera* camera, int width, int height, float dx=0, float dy=0);
-    static QMatrix4x4            getProjMatrix(Transformable* camera, int width, int height, float pixdx=0, float pixdy=0);
-    static QMatrix4x4            getOrthoMatrix(float left, float right, float bottom, float top, float near=-1, float far=1);
+    PerspectiveCamera();
+
+    QMatrix4x4 getViewMatrix(int width, int height);
+    QMatrix4x4 getProjMatrix(int width, int height);
 
     //void                         lookTransform(RtMatrix &t);
     //void                         flipYZ(RtMatrix m);
     RotatePair                   aim(Vector3 dir);
 
-    static void                  mousePressed(Transformable* camera, CameraScratch &scratch, QMouseEvent* event);
-    static void                  mouseReleased(Transformable* camera, CameraScratch &scratch, QMouseEvent* event);
-    static void                  mouseDragged(Transformable* camera, CameraScratch &scratch, QMouseEvent* event);
-
+    void                  mousePressed(CameraScratch &scratch, QMouseEvent* event);
+    void                  mouseReleased(CameraScratch &scratch, QMouseEvent* event);
+    void                  mouseDragged(CameraScratch &scratch, QMouseEvent* event);
 
     Point3                       tmpEye;
+};
+
+class OrthographicCamera : public Camera
+{
+    Q_OBJECT
+public:
+    OrthographicCamera();
+
+    QMatrix4x4 getViewMatrix(int width, int height);
+    QMatrix4x4 getProjMatrix(int width, int height);
+
+    void                  mousePressed(CameraScratch &scratch, QMouseEvent* event);
+    void                  mouseReleased(CameraScratch &scratch, QMouseEvent* event);
+    void                  mouseDragged(CameraScratch &scratch, QMouseEvent* event);
 };
 
 #endif // CAMERA_H

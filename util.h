@@ -168,10 +168,5 @@ namespace PlaneUtil {
     float intersect(Vector3 planeNormal, Point3 planeOrig, Vector3 rayDir, Point3 rayOrig);
 }
 
-namespace AssetType {
-    enum {
-        NULL_ASSET, MESH_ASSET, CAMERA_ASSET, MATERIAL_ASSET, LIGHT_ASSET
-    };
-};
 
 #endif // UTIL_H

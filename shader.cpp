@@ -29,6 +29,7 @@ QGLShaderProgram* ShaderFactory::buildMeshShader(QObject *parent)
                        "    vec4 meshColor = texture2D(meshTexture, uv);\n"
                        "    vec3 diffuseColor = mix(meshColor.rgb, brushColor.rgb, paintIntensity);"
                        "    gl_FragColor = vec4(diffuseColor, 1);\n"
+                       "    //gl_FragColor = meshColor;\n"
                        "}\n");
 
     QGLShader* vertShader = new QGLShader(QGLShader::Vertex);
