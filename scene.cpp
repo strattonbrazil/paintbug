@@ -22,10 +22,10 @@ Scene* Scene::activeScene()
 
 
         Mesh* m = new Mesh();
-        m->addVertex(-1, 0, -1);
-        m->addVertex(1, 0, -1);
-        m->addVertex(1, 0, 1);
         m->addVertex(-1, 0, 1);
+        m->addVertex(1, 0, 1);
+        m->addVertex(1, 0, -1);
+        m->addVertex(-1, 0, -1);
 
         m->addUV(0,0);
         m->addUV(1,0);

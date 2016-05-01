@@ -27,7 +27,7 @@ private:
     void                     renderHUD(QPainter &painter);
     void                     initializeView();
 
-    Camera*                   _camera;
+    PerspectiveCamera*        _camera;
     CameraScratch             _cameraScratch;
     bool                      _validShaders;
     bool                      _validFbos;

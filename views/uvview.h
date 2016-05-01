@@ -21,7 +21,7 @@ signals:
 
 public slots:
 private:
-    OrthographicCamera* _camera;
+    OrthographicCamera*       _camera;
     QGLShaderProgram*         _meshShader;
     QColor                    _brushColor;
     bool                      _validShaders;

@@ -23,11 +23,14 @@ void UVView::paintGL()
     glClearColor(.2,.2,.2,0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    QMatrix4x4 cameraProjM = _camera->getProjMatrix(width(), height());
+    QMatrix4x4 cameraViewM = _camera->getViewMatrix(width(), height());
+    QMatrix4x4 cameraProjViewM = cameraProjM * cameraViewM;
+
     glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(-0.1,1.1,-0.1,1.1,-1,1);
+    glLoadMatrixf(cameraProjM.data());
     glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+    glLoadMatrixf(cameraViewM.data());
 
     glColor3f(0,0,0);
     glBegin(GL_LINES);
@@ -44,9 +47,6 @@ void UVView::paintGL()
     }
     glEnd();
 
-    QMatrix4x4 cameraProjM = _camera->getProjMatrix(width(), height());
-    QMatrix4x4 cameraViewM = _camera->getViewMatrix(width(), height());
-    QMatrix4x4 cameraProjViewM = cameraProjM * cameraViewM;
     QMatrix4x4 objToWorld;
 
     Scene* scene = Scene::activeScene();
@@ -86,7 +86,6 @@ void UVView::paintGL()
             }
         }
         glEnd();
-
 
         _meshShader->release();
     }

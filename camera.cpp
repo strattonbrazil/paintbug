@@ -249,6 +249,7 @@ OrthographicCamera::OrthographicCamera() : Camera()
 {
 }
 
+// handles zoom and translation
 QMatrix4x4 OrthographicCamera::getViewMatrix(int width, int height)
 {
     QMatrix4x4 m;
@@ -258,10 +259,16 @@ QMatrix4x4 OrthographicCamera::getViewMatrix(int width, int height)
 
 QMatrix4x4 OrthographicCamera::getProjMatrix(int width, int height)
 {
+    float aspect = (float)width / (float)height;
+
+    float left = 0.5f + -0.6f*aspect;
+    float right = 0.5f + 0.6f*aspect;
+    float bottom = -0.1f;
+    float top = 1.1f;
 
     QMatrix4x4 m;
     m.setToIdentity();
-    m.ortho(0.f, 10.f, 0.f, 10.f, -1.f, 1.f);
+    m.ortho(left, right, bottom, top, -1.f, 1.f);
     return m;
 }
 
