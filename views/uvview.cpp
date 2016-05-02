@@ -9,12 +9,8 @@ UVView::UVView(QWidget *parent) :
     _brushColor = QColor(255,0,0);
 }
 
-void UVView::paintGL()
+void UVView::glPass()
 {
-    QPainter painter;
-    painter.begin(this);
-    painter.beginNativePainting();
-
     if (!_validShaders) {
         _meshShader = ShaderFactory::buildMeshShader(this);
         _validShaders = true;
@@ -90,12 +86,11 @@ void UVView::paintGL()
         _meshShader->release();
     }
 
+}
 
-    //drawGrid();
+void UVView::painterPass(QPainter *painter)
+{
 
-    painter.endNativePainting();
-    //renderHUD(painter);
-    painter.end();
 }
 
 void UVView::mousePressEvent(QMouseEvent *event)

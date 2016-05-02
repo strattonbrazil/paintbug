@@ -23,7 +23,8 @@ SOURCES += main.cpp\
     mesh.cpp \
     scene.cpp \
     views/perspectiveview.cpp \
-    views/uvview.cpp
+    views/uvview.cpp \
+    gl_util.cpp
 
 HEADERS  += mainwindow.h \
             glview.h \
@@ -34,7 +35,8 @@ HEADERS  += mainwindow.h \
     mesh.h \
     scene.h \
     views/perspectiveview.h \
-    views/uvview.h
+    views/uvview.h \
+    gl_util.h
 
 FORMS    += mainwindow.ui
 

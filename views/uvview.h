@@ -9,7 +9,8 @@ class UVView : public GLView
 public:
     explicit UVView(QWidget *parent = 0);
 
-    void paintGL();
+    void glPass();
+    void painterPass(QPainter *painter);
 
     void                     mousePressEvent(QMouseEvent* event);
     void                     mouseDoubleClickEvent(QMouseEvent *);

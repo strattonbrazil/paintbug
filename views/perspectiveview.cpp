@@ -6,8 +6,8 @@
 
 #include "perspectiveview.h"
 #include "scene.h"
+#include "gl_util.h"
 
-#define PAINT_FBO_WIDTH 2048
 #define DEBUG_PAINT_LAYER 0
 #define DRAW_MESH_TEXTURE 1
 
@@ -23,17 +23,12 @@ PerspectiveView::PerspectiveView(QWidget *parent) :
 {
     _camera = new PerspectiveCamera();
     _validShaders = false;
-    _validFbos = false;
     _bakePaintLayer = false;
     _brushColor = QColor(255,0,0);
 }
 
-void PerspectiveView::paintGL()
+void PerspectiveView::glPass()
 {
-    QPainter painter;
-    painter.begin(this);
-    painter.beginNativePainting();
-
     if (!_validShaders) {
         _meshShader = ShaderFactory::buildMeshShader(this);
         _bakeShader = ShaderFactory::buildBakeShader(this);
@@ -41,21 +36,6 @@ void PerspectiveView::paintGL()
         _paintDebugShader = ShaderFactory::buildPaintDebugShader(this);
 #endif
         _validShaders = true;
-    }
-
-    if (!_validFbos) {
-        // TODO: change this to a smaller format since we're only using alpha
-        QOpenGLFramebufferObjectFormat format;
-        format.setInternalTextureFormat(GL_RED);
-        _paintFbo = new QOpenGLFramebufferObject(PAINT_FBO_WIDTH, PAINT_FBO_WIDTH, format);
-        _paintFbo->bind();
-        glClearColor(0,0,0,0); // only red is used
-        glClear(GL_COLOR_BUFFER_BIT);
-        _paintFbo->release();
-
-        _transferFbo = new QOpenGLFramebufferObject(PAINT_FBO_WIDTH, PAINT_FBO_WIDTH);
-
-        _validFbos = true;
     }
 
     //if (_bakePaintLayer)
@@ -71,7 +51,8 @@ void PerspectiveView::paintGL()
     QMatrix4x4 cameraProjViewM = cameraProjM * cameraViewM;
     QMatrix4x4 objToWorld;
 
-    glBindTexture(GL_TEXTURE_2D, _paintFbo->texture());
+    // TODO: is this line needed still?
+    glBindTexture(GL_TEXTURE_2D, paintFbo()->texture());
 
 
     // used for non-shader drawing later
@@ -92,8 +73,14 @@ void PerspectiveView::paintGL()
 
         // make sure a texture exists for this mesh
         if (!hasMeshTexture(mesh)) {
+            std::cout << "creating mesh texture" << std::endl;
+
+            transferFbo()->bind();
+
             GLuint textureId;
             glGenTextures(1, &textureId);
+
+
 
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, textureId);
@@ -102,7 +89,6 @@ void PerspectiveView::paintGL()
             glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
             glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-            _transferFbo->bind();
             glClearColor(.5,.5,.5,1);
             glClear(GL_COLOR_BUFFER_BIT);
 
@@ -127,7 +113,7 @@ void PerspectiveView::paintGL()
             glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 256, 256, 0);
 
 
-            _transferFbo->release();
+            transferFbo()->release();
 
             //glActiveTexture(GL_TEXTURE0);
             //QImage img("/tmp/lena.jpg");
@@ -143,7 +129,7 @@ void PerspectiveView::paintGL()
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, meshTexture(mesh));
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, _paintFbo->texture());
+        glBindTexture(GL_TEXTURE_2D, paintFbo()->texture());
         glActiveTexture(GL_TEXTURE0);
 
         _meshShader->bind();
@@ -154,25 +140,14 @@ void PerspectiveView::paintGL()
         _meshShader->setUniformValue("meshTexture", 0);
         _meshShader->setUniformValue("paintTexture", 1);
 
-        glBegin(GL_TRIANGLES);
-        {
-            const int NUM_TRIANGLES = mesh->numTriangles();
-            for (int i = 0; i < NUM_TRIANGLES; i++) {
-                for (int j = 0; j < 3; j++) {
-                    const unsigned int vertIndex = mesh->_triangleIndices[i*3+j];
-                    Point3 vert = mesh->_vertices[vertIndex];
-                    Point2 uv = mesh->_uvs[vertIndex];
-                    glTexCoord2f(uv.x(), uv.y());
-                    glVertex3f(vert.x(), vert.y(), vert.z());
-                }
-            }
-        }
-        glEnd();
+        renderMesh(mesh);
 
         _meshShader->release();
 
-        if (_bakePaintLayer)
+        if (_bakePaintLayer) {
             bakePaintLayer();
+            setBusyMessage("baking", 400);
+        }
     }
 
 
@@ -190,7 +165,7 @@ void PerspectiveView::paintGL()
     glDisable(GL_DEPTH_TEST);
 
     // draw strokes onto paint FBO
-    _paintFbo->bind();
+    paintFbo()->bind();
     glViewport(0,0,PAINT_FBO_WIDTH,PAINT_FBO_WIDTH);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -205,40 +180,42 @@ void PerspectiveView::paintGL()
     }
     glEnd();
     glViewport(0,0,width(),height());
-    _paintFbo->release();
+    paintFbo()->release();
 
 #if DEBUG_PAINT_LAYER
     drawPaintLayer();
 #endif
 
-    painter.endNativePainting();
-    renderHUD(painter);
-    painter.end();
 }
 
-void drawOutlinedText(QPainter &painter, int x, int y, char* text, QColor bgColor, QColor fgColor)
+void drawOutlinedText(QPainter* painter, int x, int y, const char* text, QColor bgColor, QColor fgColor)
 {
-    painter.setPen(bgColor);
-    painter.drawText(x, y, text);
-    painter.setPen(fgColor);
-    painter.drawText(x-2, y-2, text);
+    painter->setPen(bgColor);
+    painter->drawText(x, y, text);
+    painter->setPen(fgColor);
+    painter->drawText(x-2, y-2, text);
 }
 
-void PerspectiveView::renderHUD(QPainter &painter)
+void PerspectiveView::painterPass(QPainter* painter)
 {
+    // render HUD
+    //
     drawOutlinedText(painter, 20, height()-20, "Brush Color", QColor(0,0,0), QColor(255,255,255));
 
-    QFontMetrics fm(painter.font());
+    QFontMetrics fm(painter->font());
     const int textHeight = fm.height();
     _brushColorRect = QRect(20, height()-120-textHeight, 100, 100);
-    painter.fillRect(_brushColorRect, _brushColor);
+    painter->fillRect(_brushColorRect, _brushColor);
+
+
 }
+
 
 void PerspectiveView::bakePaintLayer()
 {
     Scene* scene = Scene::activeScene();
 
-    _transferFbo->bind();
+    transferFbo()->bind();
 
     glViewport(0, 0, 256, 256);
 
@@ -261,7 +238,7 @@ void PerspectiveView::bakePaintLayer()
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, meshTexture(mesh));
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, _paintFbo->texture());
+        glBindTexture(GL_TEXTURE_2D, paintFbo()->texture());
         glActiveTexture(GL_TEXTURE0);
 
         QVector2D targetScale = QVector2D(width() / (float)PAINT_FBO_WIDTH, height() / (float)PAINT_FBO_WIDTH);
@@ -275,25 +252,9 @@ void PerspectiveView::bakePaintLayer()
         _bakeShader->setUniformValue("targetScale", targetScale);
         _bakeShader->setUniformValue("brushColor", _brushColor.redF(), _brushColor.greenF(), _brushColor.blueF(), 1);
 
-        glBegin(GL_TRIANGLES);
-        {
-            const int NUM_TRIANGLES = mesh->numTriangles();
-            for (int i = 0; i < NUM_TRIANGLES; i++) {
-                for (int j = 0; j < 3; j++) {
-                    const unsigned int vertIndex = mesh->_triangleIndices[i*3+j];
-                    Point3 vert = mesh->_vertices[vertIndex];
-                    Point2 uv = mesh->_uvs[vertIndex];
-                    //glTexCoord2f(uv.x(), uv.y());
-                    //glVertex3f(vert.x(), vert.y(), vert.z());
-                    glTexCoord3f(vert.x(), vert.y(), vert.z());
-                    glVertex2f(uv.x(), uv.y());
-                }
-            }
-        }
-        glEnd();
+        renderMesh(mesh, MeshPropType::GEOMETRY, MeshPropType::UV);
 
         _bakeShader->release();
-
 
         // copy bake back into mesh texture
         glActiveTexture(GL_TEXTURE0);
@@ -301,13 +262,13 @@ void PerspectiveView::bakePaintLayer()
         glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 256, 256, 0);
     }
 
-    _transferFbo->release();
+    transferFbo()->release();
 
     // clear paint buffer
-    _paintFbo->bind();
+    paintFbo()->bind();
     glClearColor(0,0,0,0);
     glClear(GL_COLOR_BUFFER_BIT);
-    _paintFbo->release();
+    paintFbo()->release();
 
     _strokePoints.clear();
 
@@ -329,20 +290,9 @@ void PerspectiveView::drawPaintLayer()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glBindTexture(GL_TEXTURE_2D, _paintFbo->texture());
+    glBindTexture(GL_TEXTURE_2D, paintFbo()->texture());
 
-    glBegin(GL_QUADS);
-    {
-        glTexCoord2f(0,0);
-        glVertex2f(0,0);
-        glTexCoord2f(1,0);
-        glVertex2f(PAINT_FBO_WIDTH,0);
-        glTexCoord2f(1,1);
-        glVertex2f(PAINT_FBO_WIDTH,PAINT_FBO_WIDTH);
-        glTexCoord2f(0,1);
-        glVertex2f(0,PAINT_FBO_WIDTH);
-    }
-    glEnd();
+    drawTexturedRect(0, 0, PAINT_FBO_WIDTH, PAINT_FBO_WIDTH);
 
     glDisable(GL_BLEND);
     _paintDebugShader->release();
@@ -362,18 +312,7 @@ void PerspectiveView::drawMeshTexture(GLuint meshTexture)
 
     glBindTexture(GL_TEXTURE_2D, meshTexture);
 
-    glBegin(GL_QUADS);
-    {
-        glTexCoord2f(0,0);
-        glVertex2f(20,20);
-        glTexCoord2f(1,0);
-        glVertex2f(276,20);
-        glTexCoord2f(1,1);
-        glVertex2f(276,276);
-        glTexCoord2f(0,1);
-        glVertex2f(20,276);
-    }
-    glEnd();
+    drawTexturedRect(20, 20, 256, 256);
 
     glDisable(GL_BLEND);
     _paintDebugShader->release();

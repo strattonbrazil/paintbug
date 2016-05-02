@@ -9,7 +9,8 @@ class PerspectiveView : public GLView
 public:
     explicit PerspectiveView(QWidget *parent = 0);
 
-    void paintGL();
+    void glPass();
+    void painterPass(QPainter *painter);
 
     void                     mousePressEvent(QMouseEvent* event);
     void                     mouseDoubleClickEvent(QMouseEvent *);
@@ -24,18 +25,14 @@ private:
     void                     bakePaintLayer();
     void                     drawPaintLayer();
     void                     drawMeshTexture(GLuint meshTexture);
-    void                     renderHUD(QPainter &painter);
     void                     initializeView();
 
     PerspectiveCamera*        _camera;
     CameraScratch             _cameraScratch;
     bool                      _validShaders;
-    bool                      _validFbos;
     QGLShaderProgram*         _meshShader;
     QGLShaderProgram*         _bakeShader;
     QGLShaderProgram*         _paintDebugShader;
-    QOpenGLFramebufferObject* _paintFbo;
-    QOpenGLFramebufferObject* _transferFbo;
     QList<Point2>             _strokePoints;
     bool                      _bakePaintLayer;
     QColor                    _brushColor;

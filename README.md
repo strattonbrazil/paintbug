@@ -5,7 +5,7 @@ paintbug
 
 TODO
 --------
-* add a baking message while baking to texture (minimum time up like 1 sec)
-* support painting mesh texture
+* move color picker to side bar
+* support painting mesh texture in UV space
 * refactor duplicate code from mesh-render/bake-render shaders
 * bake on mouse move (if dirty)
