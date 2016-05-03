@@ -1,5 +1,6 @@
 #include "uvview.h"
 #include "scene.h"
+#include "gl_util.h"
 
 UVView::UVView(QWidget *parent) :
     GLView(parent)
@@ -55,33 +56,22 @@ void UVView::glPass()
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, meshTexture(mesh));
-        //glActiveTexture(GL_TEXTURE1);
-        //glBindTexture(GL_TEXTURE_2D, _paintFbo->texture());
-        //glActiveTexture(GL_TEXTURE0);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, paintFbo()->texture());
+        glActiveTexture(GL_TEXTURE0);
+
+        _brushColor = QColor(255,255,0);
 
         _meshShader->bind();
         _meshShader->setUniformValue("objToWorld", objToWorld);
         _meshShader->setUniformValue("cameraPV", cameraProjViewM);
-        _meshShader->setUniformValue("paintFboWidth", 200);
+        _meshShader->setUniformValue("paintFboWidth", PAINT_FBO_WIDTH);
         _meshShader->setUniformValue("brushColor", _brushColor.redF(), _brushColor.greenF(), _brushColor.blueF(), 1);
         _meshShader->setUniformValue("meshTexture", 0);
         _meshShader->setUniformValue("paintTexture", 1);
 
         // draw mesh in UV space
-        glBegin(GL_TRIANGLES);
-        {
-            const int NUM_TRIANGLES = mesh->numTriangles();
-            for (int i = 0; i < NUM_TRIANGLES; i++) {
-                for (int j = 0; j < 3; j++) {
-                    const unsigned int vertIndex = mesh->_triangleIndices[i*3+j];
-                    Point3 vert = mesh->_vertices[vertIndex];
-                    Point2 uv = mesh->_uvs[vertIndex];
-                    glTexCoord2f(uv.x(), uv.y());
-                    glVertex2f(uv.x(), uv.y());
-                }
-            }
-        }
-        glEnd();
+        renderMesh(mesh, MeshPropType::UV, MeshPropType::UV);
 
         _meshShader->release();
     }
@@ -93,32 +83,3 @@ void UVView::painterPass(QPainter *painter)
 
 }
 
-void UVView::mousePressEvent(QMouseEvent *event)
-{
-
-}
-
-void UVView::mouseDoubleClickEvent(QMouseEvent *event)
-{
-
-}
-
-void UVView::mouseReleaseEvent(QMouseEvent *event)
-{
-
-}
-
-void UVView::mouseMoveEvent(QMouseEvent *event)
-{
-
-}
-
-void UVView::mouseDragEvent(QMouseEvent *event)
-{
-
-}
-
-void UVView::keyPressEvent(QKeyEvent *event)
-{
-
-}

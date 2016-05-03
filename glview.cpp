@@ -2,6 +2,17 @@
 
 #include <iostream>
 
+#include "scene.h"
+#include "gl_util.h"
+
+#define DEBUG_PAINT_LAYER 1
+
+namespace MouseMode {
+    enum { FREE, CAMERA, TOOL, HUD };
+}
+
+int mouseMode = MouseMode::FREE;
+int activeMouseButton = -1;
 
 // store the first GL widget and use it as the shared widget
 QGLWidget* firstWidget = 0;
@@ -17,9 +28,7 @@ QGLWidget* sharedWidget(QGLWidget* view)
 
 QOpenGLFramebufferObject* sharedTransferFbo = 0;
 QOpenGLFramebufferObject* GLView::transferFbo() {
-    std::cout << "getting transfer fbo" << std::endl;
     if (!sharedTransferFbo) {
-        std::cout << "creating transfer fbo" << std::endl;
         sharedTransferFbo = new QOpenGLFramebufferObject(PAINT_FBO_WIDTH, PAINT_FBO_WIDTH);
     }
     return sharedTransferFbo;
@@ -45,10 +54,17 @@ GLView::GLView(QWidget *parent) :
 {
     connect(&_messageTimer, SIGNAL(timeout()), this, SLOT(messageTimerUpdate()));
     _messageTimer.setInterval(100);
+
+    _bakePaintLayer = false;
 }
 
 void GLView::initializeGL()
 {
+    _meshShader = ShaderFactory::buildMeshShader(this);
+    _bakeShader = ShaderFactory::buildBakeShader(this);
+#if DEBUG_PAINT_LAYER
+        _paintDebugShader = ShaderFactory::buildPaintDebugShader(this);
+#endif
 }
 
 QGLFormat GLView::defaultFormat()
@@ -74,6 +90,18 @@ void GLView::paintGL()
     painter.beginNativePainting();
 
     glPass();
+
+    // draw strokes onto paint FBO
+    drawPaintStrokes();
+
+#if DEBUG_PAINT_LAYER
+    drawPaintLayer();
+#endif
+
+    if (_bakePaintLayer) {
+        bakePaintLayer();
+        setBusyMessage("baking", 400);
+    }
 
     painter.endNativePainting();
 
@@ -124,6 +152,46 @@ void GLView::messageTimerUpdate()
         _messageTimer.stop();
 }
 
+void GLView::drawPaintStrokes()
+{
+    paintFbo()->bind();
+    glViewport(0,0,PAINT_FBO_WIDTH,PAINT_FBO_WIDTH);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, PAINT_FBO_WIDTH, 0, PAINT_FBO_WIDTH, -1, 1);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glPointSize(20.0f);
+    glBegin(GL_POINTS);
+    glColor4f(1,1,1,1);
+    foreach (Point2 p, _strokePoints) {
+        glVertex2f(p.x(), p.y());
+    }
+    glEnd();
+    glViewport(0,0,width(),height());
+    paintFbo()->release();
+}
+
+void GLView::drawPaintLayer()
+{
+    QMatrix4x4 cameraProjViewM;
+    cameraProjViewM.ortho(0, width(), 0, height(), -1, 1);
+
+    _paintDebugShader->bind();
+    _paintDebugShader->setUniformValue("cameraPV", cameraProjViewM);
+    _paintDebugShader->setUniformValue("paintTexture", 0);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glBindTexture(GL_TEXTURE_2D, paintFbo()->texture());
+
+    drawTexturedRect(0, 0, PAINT_FBO_WIDTH, PAINT_FBO_WIDTH);
+
+    glDisable(GL_BLEND);
+    _paintDebugShader->release();
+}
+
 // duration in milliseconds
 void GLView::setBusyMessage(QString message, int duration)
 {
@@ -131,4 +199,165 @@ void GLView::setBusyMessage(QString message, int duration)
     _busyMessage = message;
 
     _messageTimer.start();
+}
+
+void GLView::bakePaintLayer()
+{
+    Scene* scene = Scene::activeScene();
+
+    transferFbo()->bind();
+
+    glViewport(0, 0, 256, 256);
+
+    QMatrix4x4 cameraProjM = _camera->getProjMatrix(width(), height());
+    QMatrix4x4 cameraViewM = _camera->getViewMatrix(width(), height());
+    QMatrix4x4 cameraProjViewM = cameraProjM * cameraViewM;
+
+    QMatrix4x4 orthoProjViewM;
+    orthoProjViewM.ortho(0,1,0,1,-1,1);
+
+    // render the meshes in UV space onto their texture using the paintFBO
+    // render each mesh
+    QHashIterator<QString,Mesh*> meshes = scene->meshes();
+    while (meshes.hasNext()) {
+        meshes.next();
+        Mesh* mesh = meshes.value();
+
+        QMatrix4x4 objToWorld;
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, meshTexture(mesh));
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, paintFbo()->texture());
+        glActiveTexture(GL_TEXTURE0);
+
+        QVector2D targetScale = QVector2D(width() / (float)PAINT_FBO_WIDTH, height() / (float)PAINT_FBO_WIDTH);
+
+        QColor _brushColor(255,0,0);
+
+        _bakeShader->bind();
+        _bakeShader->setUniformValue("objToWorld", objToWorld);
+        _bakeShader->setUniformValue("orthoPV", orthoProjViewM);
+        _bakeShader->setUniformValue("cameraPV", cameraProjViewM);
+        _bakeShader->setUniformValue("meshTexture", 0);
+        _bakeShader->setUniformValue("paintTexture", 1);
+        _bakeShader->setUniformValue("targetScale", targetScale);
+        _bakeShader->setUniformValue("brushColor", _brushColor.redF(), _brushColor.greenF(), _brushColor.blueF(), 1);
+
+        // TODO: is this correct for UV view?
+        renderMesh(mesh, MeshPropType::GEOMETRY, MeshPropType::UV);
+
+        _bakeShader->release();
+
+        // copy bake back into mesh texture
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, meshTexture(mesh));
+        glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 256, 256, 0);
+    }
+
+    transferFbo()->release();
+
+    // clear paint buffer
+    paintFbo()->bind();
+    glClearColor(0,0,0,0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    paintFbo()->release();
+
+    _strokePoints.clear();
+
+    glViewport(0, 0, width(), height());
+
+    _bakePaintLayer = false;
+}
+
+void GLView::mousePressEvent(QMouseEvent* event)
+{
+    // handle future keyboard widgets with this
+    this->setFocus();
+
+    //bool altDown = event->modifiers() & Qt::AltModifier;
+    bool camDown = event->modifiers() & Qt::AltModifier;
+
+    if (mouseMode == MouseMode::FREE && camDown) {
+        mouseMode = MouseMode::CAMERA;
+        activeMouseButton = event->button();
+        _camera->mousePressed(_cameraScratch, event);
+    }
+    else if (mouseMode == MouseMode::FREE && event->button() & Qt::LeftButton) {
+        if (_brushColorRect.contains(event->pos())) { // HUD?
+            mouseMode = MouseMode::HUD;
+            activeMouseButton = event->button();
+        } else {
+            _strokePoints.append(Point2(event->pos().x(), height()-event->pos().y()));
+            mouseMode = MouseMode::TOOL;
+            activeMouseButton = event->button();
+        }
+    }
+}
+
+void GLView::mouseDoubleClickEvent(QMouseEvent *event)
+{
+}
+
+void GLView::mouseReleaseEvent(QMouseEvent* event)
+{
+    //CursorTool* cursorTool = SunshineUi::cursorTool();
+
+    if (mouseMode == MouseMode::CAMERA && event->button() == activeMouseButton) {
+        mouseMode = MouseMode::FREE;
+        activeMouseButton = -1;
+        _camera->mouseReleased(_cameraScratch, event);
+    }
+    else if (mouseMode == MouseMode::HUD && event->button() == activeMouseButton) {
+        if (_brushColorRect.contains(event->pos())) { // HUD?
+            _brushColor = QColorDialog::getColor(_brushColor, this, "Brush Color");
+        }
+
+        mouseMode = MouseMode::FREE;
+        activeMouseButton = -1;
+    }
+    else if (mouseMode == MouseMode::TOOL && event->button() == activeMouseButton) {
+        mouseMode = MouseMode::FREE;
+        activeMouseButton = -1;
+    }
+
+    update();
+}
+
+void GLView::mouseMoveEvent(QMouseEvent* event)
+{
+    if (mouseMode == MouseMode::TOOL) {
+        mouseDragEvent(event);
+
+        //_workTool->mouseMoved(event);
+
+        update();
+    }
+    else if (mouseMode != MouseMode::FREE) {
+        mouseDragEvent(event);
+    }
+}
+
+void GLView::mouseDragEvent(QMouseEvent* event)
+{
+    if (mouseMode == MouseMode::CAMERA) {
+        _camera->mouseDragged(_cameraScratch, event);
+    }
+    else if (mouseMode == MouseMode::TOOL) {
+        _strokePoints.append(Point2(event->pos().x(), height()-event->pos().y()));
+    }
+
+    update();
+}
+
+void GLView::keyPressEvent(QKeyEvent *event)
+{
+    if (mouseMode == MouseMode::FREE) {
+        if (event->key() == Qt::Key_Space) {
+            _bakePaintLayer = true;
+            update();
+        }
+    }
+
+    // TODO: call base class if not using this event
 }

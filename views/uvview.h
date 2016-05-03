@@ -12,18 +12,10 @@ public:
     void glPass();
     void painterPass(QPainter *painter);
 
-    void                     mousePressEvent(QMouseEvent* event);
-    void                     mouseDoubleClickEvent(QMouseEvent *);
-    void                     mouseReleaseEvent(QMouseEvent* event);
-    void                     mouseMoveEvent(QMouseEvent* event);
-    void                     mouseDragEvent(QMouseEvent* event);
-    void                     keyPressEvent(QKeyEvent* event);
 signals:
 
 public slots:
 private:
-    OrthographicCamera*       _camera;
-    QGLShaderProgram*         _meshShader;
     QColor                    _brushColor;
     bool                      _validShaders;
 };

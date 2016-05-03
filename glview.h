@@ -3,6 +3,7 @@
 
 #include <QGLWidget>
 #include <QOpenGLFramebufferObject>
+#include <QColorDialog>
 #include <QTimer>
 #include <QTime>
 
@@ -28,12 +29,12 @@ public:
     virtual void glPass() = 0;
     virtual void painterPass(QPainter* painter) = 0;
 
-    virtual void mousePressEvent(QMouseEvent* event) = 0;
-    virtual void mouseDoubleClickEvent(QMouseEvent *) = 0;
-    virtual void mouseReleaseEvent(QMouseEvent* event) = 0;
-    virtual void mouseMoveEvent(QMouseEvent* event) = 0;
-    virtual void mouseDragEvent(QMouseEvent* event) = 0;
-    virtual void keyPressEvent(QKeyEvent* event) = 0;
+    void mousePressEvent(QMouseEvent* event);
+    void mouseDoubleClickEvent(QMouseEvent *);
+    void mouseReleaseEvent(QMouseEvent* event);
+    void mouseMoveEvent(QMouseEvent* event);
+    void mouseDragEvent(QMouseEvent* event);
+    void keyPressEvent(QKeyEvent* event);
 
 
     bool hasMeshTexture(Mesh* mesh);
@@ -44,16 +45,34 @@ signals:
 public slots:
     void messageTimerUpdate();
 protected:
-    // shared resources
+    // shared GL resources
     QOpenGLFramebufferObject* transferFbo();
     QOpenGLFramebufferObject* paintFbo();
+
+    // non-shared GL resources
+    QGLShaderProgram*         _meshShader;
+    QGLShaderProgram*         _bakeShader;
+    QGLShaderProgram*         _paintDebugShader;
+
+    Camera* _camera;
+    QList<Point2>             _strokePoints;
+    bool                      _bakePaintLayer;
+    CameraScratch             _cameraScratch;
+    QRect                     _brushColorRect;
+    QColor                    _brushColor;
+
+    void drawPaintStrokes();
+    void drawPaintLayer();
 
     void setBusyMessage(QString message, int duration);
 
 private:
+    void                     bakePaintLayer();
+
     QTimer _messageTimer;
     QString _busyMessage = "";
     QTime _messageFinished;
+
 };
 
 #endif // GLVIEW_H
