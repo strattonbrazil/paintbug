@@ -12,10 +12,10 @@ UVView::UVView(QWidget *parent) :
 
 void UVView::glPass()
 {
-    if (!_validShaders) {
-        _meshShader = ShaderFactory::buildMeshShader(this);
-        _validShaders = true;
-    }
+    //if (!_validShaders) {
+    //    _meshShader = ShaderFactory::buildMeshShader(this);
+    //    _validShaders = true;
+   // }
 
     glClearColor(.2,.2,.2,0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

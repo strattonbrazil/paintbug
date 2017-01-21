@@ -28,9 +28,6 @@ void PerspectiveView::glPass()
     QMatrix4x4 cameraProjViewM = cameraProjM * cameraViewM;
     QMatrix4x4 objToWorld;
 
-    // TODO: is this line needed still?
-    glBindTexture(GL_TEXTURE_2D, paintFbo()->texture());
-
     Scene* scene = Scene::activeScene();
 
     // render each mesh

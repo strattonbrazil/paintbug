@@ -6,6 +6,7 @@
 #include <QColorDialog>
 #include <QTimer>
 #include <QTime>
+#include <QOpenGLDebugLogger>
 
 #include "transformable.h"
 #include "camera.h"
@@ -72,6 +73,7 @@ private:
     QTimer _messageTimer;
     QString _busyMessage = "";
     QTime _messageFinished;
+    QOpenGLDebugLogger* _logger;
 
 };
 

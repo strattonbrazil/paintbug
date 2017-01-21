@@ -65,16 +65,20 @@ void GLView::initializeGL()
 #if DEBUG_PAINT_LAYER
         _paintDebugShader = ShaderFactory::buildPaintDebugShader(this);
 #endif
+    _logger = new QOpenGLDebugLogger(this);
+    _logger->initialize();
 }
 
 QGLFormat GLView::defaultFormat()
 {
     QGLFormat format;
     //format.setVersion(3,2);
-    format.setAlpha(true);
-    format.setStencil(true);
-    format.setVersion(3,1);
-    format.setProfile(QGLFormat::CoreProfile);
+    //format.setRenderableType(QSurfaceFormat::OpenGL);
+    //format.setAlpha(true);
+    //format.setStencil(true);
+    //format.setVersion(3,1);
+    //format.setProfile(QSurfaceFormat::CoreProfile);
+    //format.setOption(QSurfaceFormat::DebugContext);
     return format;
 }
 
@@ -85,6 +89,10 @@ void GLView::resizeGL(int w, int h)
 
 void GLView::paintGL()
 {
+    QList<QOpenGLDebugMessage> messages = _logger->loggedMessages();
+    foreach (const QOpenGLDebugMessage &message, messages)
+        qDebug() << message;
+
     QPainter painter;
     painter.begin(this);
     painter.beginNativePainting();
