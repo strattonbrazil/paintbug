@@ -12,7 +12,6 @@ QGLShaderProgram* ShaderFactory::buildMeshShader(QObject *parent)
                        "void main() {\n"
                        "  uv = gl_MultiTexCoord0.xy;\n"
                        "  gl_Position = cameraPV * objToWorld * gl_Vertex;\n"
-                       "  gl_FrontColor = vec4(1,0,0,1);\n"
                        "}\n");
 
     QString fragSource(VERSION_STRING
@@ -59,7 +58,6 @@ QGLShaderProgram* ShaderFactory::buildBakeShader(QObject *parent)
                        "  //screenPos = 0.5 * (vec2(1,1) + (s.xy / s.w));\n"
                        "  //screenPos = gl_MultiTexCoord0.xy;\n"
                        "  gl_Position = orthoPV * gl_Vertex;\n"
-                       "  gl_FrontColor = vec4(1,0,0,1);\n"
                        "}\n");
 
     QString fragSource(VERSION_STRING

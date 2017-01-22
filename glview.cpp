@@ -5,7 +5,7 @@
 #include "scene.h"
 #include "gl_util.h"
 
-#define DEBUG_PAINT_LAYER 1
+#define DEBUG_PAINT_LAYER 0
 
 namespace MouseMode {
     enum { FREE, CAMERA, TOOL, HUD };
@@ -133,7 +133,7 @@ void GLView::paintGL()
     painter.end();
 }
 
-QHash<Mesh*,GLuint> meshTextures;
+static QHash<Mesh*,GLuint> meshTextures;
 
 
 bool GLView::hasMeshTexture(Mesh *mesh)
@@ -162,7 +162,10 @@ void GLView::messageTimerUpdate()
 
 void GLView::drawPaintStrokes()
 {
+    // NOT BINDING!!!
     paintFbo()->bind();
+    std::cout << paintFbo()->isBound() << std::endl;
+    std::cout << QOpenGLContext::currentContext() << std::endl;
     glViewport(0,0,PAINT_FBO_WIDTH,PAINT_FBO_WIDTH);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -241,7 +244,7 @@ void GLView::bakePaintLayer()
 
         QVector2D targetScale = QVector2D(width() / (float)PAINT_FBO_WIDTH, height() / (float)PAINT_FBO_WIDTH);
 
-        QColor _brushColor(255,0,0);
+        //QColor _brushColor(255,0,0);
 
         _bakeShader->bind();
         _bakeShader->setUniformValue("objToWorld", objToWorld);

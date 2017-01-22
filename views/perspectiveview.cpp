@@ -7,8 +7,6 @@
 #include "scene.h"
 #include "gl_util.h"
 
-#define DRAW_MESH_TEXTURE 1
-
 PerspectiveView::PerspectiveView(QWidget *parent) :
     GLView(parent)
 {

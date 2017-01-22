@@ -24,6 +24,7 @@ void UVView::glPass()
     QMatrix4x4 cameraViewM = _camera->getViewMatrix(width(), height());
     QMatrix4x4 cameraProjViewM = cameraProjM * cameraViewM;
 
+    /*
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixf(cameraProjM.data());
     glMatrixMode(GL_MODELVIEW);
@@ -43,6 +44,7 @@ void UVView::glPass()
         glVertex2f(1, 1);
     }
     glEnd();
+    */
 
     QMatrix4x4 objToWorld;
 
@@ -59,8 +61,6 @@ void UVView::glPass()
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, paintFbo()->texture());
         glActiveTexture(GL_TEXTURE0);
-
-        _brushColor = QColor(255,255,0);
 
         _meshShader->bind();
         _meshShader->setUniformValue("objToWorld", objToWorld);
