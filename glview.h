@@ -46,11 +46,9 @@ signals:
 public slots:
     void messageTimerUpdate();
 protected:
-    // shared GL resources
     QOpenGLFramebufferObject* transferFbo();
     QOpenGLFramebufferObject* paintFbo();
 
-    // non-shared GL resources
     QGLShaderProgram*         _meshShader;
     QGLShaderProgram*         _bakeShader;
     QGLShaderProgram*         _paintDebugShader;
@@ -61,6 +59,9 @@ protected:
     CameraScratch             _cameraScratch;
     QRect                     _brushColorRect;
     QColor                    _brushColor;
+
+    QOpenGLFramebufferObject* _transferFbo;
+    QOpenGLFramebufferObject* _paintFbo;
 
     void drawPaintStrokes();
     void drawPaintLayer();

@@ -26,31 +26,31 @@ QGLWidget* sharedWidget(QGLWidget* view)
     }
 }
 
-QOpenGLFramebufferObject* sharedTransferFbo = 0;
 QOpenGLFramebufferObject* GLView::transferFbo() {
-    if (!sharedTransferFbo) {
-        sharedTransferFbo = new QOpenGLFramebufferObject(PAINT_FBO_WIDTH, PAINT_FBO_WIDTH);
+    if (!_transferFbo) {
+        _transferFbo = new QOpenGLFramebufferObject(PAINT_FBO_WIDTH, PAINT_FBO_WIDTH);
     }
-    return sharedTransferFbo;
+    return _transferFbo;
 }
 
-QOpenGLFramebufferObject* sharedPaintFbo = 0;
 QOpenGLFramebufferObject* GLView::paintFbo() {
-    if (!sharedPaintFbo) {
+    if (!_paintFbo) {
         QOpenGLFramebufferObjectFormat format;
         format.setInternalTextureFormat(GL_RED);
-        sharedPaintFbo = new QOpenGLFramebufferObject(PAINT_FBO_WIDTH, PAINT_FBO_WIDTH, format);
+        _paintFbo = new QOpenGLFramebufferObject(PAINT_FBO_WIDTH, PAINT_FBO_WIDTH, format);
 
-        sharedPaintFbo->bind();
+        _paintFbo->bind();
         glClearColor(0,0,0,0); // only red is used
         glClear(GL_COLOR_BUFFER_BIT);
-        sharedPaintFbo->release();
+        _paintFbo->release();
     }
-    return sharedPaintFbo;
+    return _paintFbo;
 }
 
 GLView::GLView(QWidget *parent) :
-    QGLWidget(parent, sharedWidget(this))
+    QGLWidget(parent, sharedWidget(this)),
+    _transferFbo(0),
+    _paintFbo(0)
 {
     connect(&_messageTimer, SIGNAL(timeout()), this, SLOT(messageTimerUpdate()));
     _messageTimer.setInterval(100);
