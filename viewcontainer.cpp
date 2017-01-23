@@ -11,11 +11,13 @@ ViewContainer::ViewContainer(QWidget *parent) : QGLWidget(parent)
 
 void ViewContainer::initializeGL()
 {
+    /*
     _meshShader = ShaderFactory::buildMeshShader(this);
     _bakeShader = ShaderFactory::buildBakeShader(this);
 #if DEBUG_PAINT_LAYER
         _paintDebugShader = ShaderFactory::buildPaintDebugShader(this);
 #endif
+*/
     _logger = new QOpenGLDebugLogger(this);
     _logger->initialize();
 }
@@ -111,7 +113,7 @@ void ViewContainer::drawViewGLPass(QString viewName, QRect region)
     glViewport(region.x(), height() - region.y() - region.height(), region.width(), region.height());
 
     _views[viewName]->setSize(region.width(), region.height());
-    _views[viewName]->glPass();
+    _views[viewName]->glPass(_glResourceContext);
 }
 
 void ViewContainer::drawViewPainterPass(QString viewName, QRect region, QPainter* painter)
@@ -213,18 +215,32 @@ void ViewContainer::mouseReleaseEvent(QMouseEvent* event)
     if (_viewOwningMouse != "" && event->button() == _mousePressButton) {
         QSharedPointer<GLView> view = _views[_viewOwningMouse];
 
+        QMouseEvent localEvent = convertToRegion(event, _owningRegion);
+        view->mouseReleaseEvent(&localEvent);
+
+
         _viewOwningMouse = "";
     }
 }
 
 void ViewContainer::mouseMoveEvent(QMouseEvent* event)
 {
+    if (_viewOwningMouse != "") {
+        mouseDragEvent(event);
+    }
 
+    update();
 }
 
 void ViewContainer::mouseDragEvent(QMouseEvent* event)
 {
-
+    std::cout << "drag" << std::endl;
+    if (_viewOwningMouse != "") {
+        QSharedPointer<GLView> view = _views[_viewOwningMouse];
+        QMouseEvent localEvent = convertToRegion(event, _owningRegion);
+        view->mouseDragEvent(&localEvent);
+        std::cout << "dragging" << std::endl;
+    }
 }
 
 void ViewContainer::keyPressEvent(QKeyEvent* event)

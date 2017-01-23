@@ -13,7 +13,7 @@ PerspectiveView::PerspectiveView()
     _brushColor = QColor(255,0,0);
 }
 
-void PerspectiveView::glPass()
+void PerspectiveView::glPass(GLResourceContext &ctx)
 {
     glEnable(GL_DEPTH_TEST);
 
@@ -89,19 +89,18 @@ void PerspectiveView::glPass()
         glBindTexture(GL_TEXTURE_2D, paintFbo()->texture());
         glActiveTexture(GL_TEXTURE0);
 
-        /*
-        _meshShader->bind();
-        _meshShader->setUniformValue("objToWorld", objToWorld);
-        _meshShader->setUniformValue("cameraPV", cameraProjViewM);
-        _meshShader->setUniformValue("paintFboWidth", PAINT_FBO_WIDTH);
-        _meshShader->setUniformValue("brushColor", _brushColor.redF(), _brushColor.greenF(), _brushColor.blueF(), 1);
-        _meshShader->setUniformValue("meshTexture", 0);
-        _meshShader->setUniformValue("paintTexture", 1);
+        QGLShaderProgram* meshShader = ctx.meshShader();
+        meshShader->bind();
+        meshShader->setUniformValue("objToWorld", objToWorld);
+        meshShader->setUniformValue("cameraPV", cameraProjViewM);
+        meshShader->setUniformValue("paintFboWidth", PAINT_FBO_WIDTH);
+        meshShader->setUniformValue("brushColor", _brushColor.redF(), _brushColor.greenF(), _brushColor.blueF(), 1);
+        meshShader->setUniformValue("meshTexture", 0);
+        meshShader->setUniformValue("paintTexture", 1);
 
         renderMesh(mesh);
 
-        _meshShader->release();
-        */
+        meshShader->release();
 
 
     }

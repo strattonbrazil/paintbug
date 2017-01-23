@@ -12,6 +12,7 @@
 #include "shader.h"
 #include "mesh.h"
 #include "paintutils.h"
+#include "glresourcecontext.h"
 
 #define PAINT_FBO_WIDTH 2048
 
@@ -20,7 +21,7 @@ class GLView
 public:
     explicit GLView();
 
-    virtual void glPass() = 0;
+    virtual void glPass(GLResourceContext &ctx) = 0;
     virtual void painterPass(QPainter* painter) = 0;
     virtual QString viewLabel() = 0;
 

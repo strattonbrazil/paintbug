@@ -7,6 +7,7 @@
 
 #include "glview.h"
 #include "shader.h"
+#include "glresourcecontext.h"
 
 enum ViewMode {
     PERSPECTIVE_AND_UV,
@@ -48,12 +49,9 @@ public slots:
 private:
     ViewMode _viewMode = ViewMode::PERSPECTIVE_AND_UV;
 
-    QGLShaderProgram*         _meshShader;
-    QGLShaderProgram*         _bakeShader;
-    QGLShaderProgram*         _paintDebugShader;
-
     QOpenGLDebugLogger* _logger;
 
+    GLResourceContext _glResourceContext;
     QHash<QString,QSharedPointer<GLView>> _views;
 
     QString _viewOwningMouse; // name of view, which has mouse

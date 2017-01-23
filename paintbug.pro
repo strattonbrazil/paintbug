@@ -26,7 +26,8 @@ SOURCES += main.cpp\
     views/uvview.cpp \
     gl_util.cpp \
     viewcontainer.cpp \
-    paintutils.cpp
+    paintutils.cpp \
+    glresourcecontext.cpp
 
 HEADERS  += mainwindow.h \
             glview.h \
@@ -40,7 +41,8 @@ HEADERS  += mainwindow.h \
     views/uvview.h \
     gl_util.h \
     viewcontainer.h \
-    paintutils.h
+    paintutils.h \
+    glresourcecontext.h
 
 FORMS    += mainwindow.ui
 

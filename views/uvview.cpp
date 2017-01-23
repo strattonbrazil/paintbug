@@ -9,7 +9,7 @@ UVView::UVView()
     _brushColor = QColor(255,0,0);
 }
 
-void UVView::glPass()
+void UVView::glPass(GLResourceContext &ctx)
 {
     //if (!_validShaders) {
     //    _meshShader = ShaderFactory::buildMeshShader(this);

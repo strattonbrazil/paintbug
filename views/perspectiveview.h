@@ -8,7 +8,7 @@ class PerspectiveView : public GLView
 public:
     explicit PerspectiveView();
 
-    void glPass();
+    void glPass(GLResourceContext &ctx);
     void painterPass(QPainter *painter);
     QString viewLabel() { return "Perspective"; }
 signals:

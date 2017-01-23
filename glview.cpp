@@ -290,12 +290,11 @@ void GLView::bakePaintLayer()
 
 void GLView::mousePressEvent(QMouseEvent* event)
 {
-    std::cout << event->pos() << std::endl;
     // handle future keyboard widgets with this
     //this->setFocus();
 
-    //bool altDown = event->modifiers() & Qt::AltModifier;
-    /*
+    bool altDown = event->modifiers() & Qt::AltModifier;
+
     bool camDown = event->modifiers() & Qt::AltModifier;
 
     if (mouseMode == MouseMode::FREE && camDown) {
@@ -313,7 +312,6 @@ void GLView::mousePressEvent(QMouseEvent* event)
             activeMouseButton = event->button();
         }
     }
-    */
 }
 
 void GLView::mouseDoubleClickEvent(QMouseEvent *event)

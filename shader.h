@@ -10,9 +10,9 @@ class ShaderFactory
 {
 public:
     static QGLShaderProgram* buildShader(QObject* parent, QString vertFile, QString fragFile);
-    static QGLShaderProgram* buildMeshShader(QObject* parent);
-    static QGLShaderProgram* buildBakeShader(QObject* parent);
-    static QGLShaderProgram* buildPaintDebugShader(QObject* parent);
+    static QGLShaderProgram* buildMeshShader(QObject* parent = 0);
+    static QGLShaderProgram* buildBakeShader(QObject* parent = 0);
+    static QGLShaderProgram* buildPaintDebugShader(QObject* parent = 0);
 };
 
 #endif // SHADER_H
