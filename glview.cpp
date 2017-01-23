@@ -47,17 +47,17 @@ QOpenGLFramebufferObject* GLView::paintFbo() {
     return _paintFbo;
 }
 
-GLView::GLView(QWidget *parent) :
-    QGLWidget(parent, sharedWidget(this)),
+GLView::GLView() :
     _transferFbo(0),
     _paintFbo(0)
 {
-    connect(&_messageTimer, SIGNAL(timeout()), this, SLOT(messageTimerUpdate()));
-    _messageTimer.setInterval(100);
+    //connect(&_messageTimer, SIGNAL(timeout()), this, SLOT(messageTimerUpdate()));
+    //_messageTimer.setInterval(100);
 
-    _bakePaintLayer = false;
+    //_bakePaintLayer = false;
 }
 
+/*
 void GLView::initializeGL()
 {
     _meshShader = ShaderFactory::buildMeshShader(this);
@@ -132,6 +132,7 @@ void GLView::paintGL()
 
     painter.end();
 }
+*/
 
 static QHash<Mesh*,GLuint> meshTextures;
 
@@ -154,7 +155,7 @@ void GLView::setMeshTexture(Mesh *mesh, GLuint id)
 
 void GLView::messageTimerUpdate()
 {
-    update();
+    //update();
 
     if (_messageFinished < QTime::currentTime())
         _messageTimer.stop();
@@ -162,6 +163,7 @@ void GLView::messageTimerUpdate()
 
 void GLView::drawPaintStrokes()
 {
+    /*
     // NOT BINDING!!!
     paintFbo()->bind();
     std::cout << paintFbo()->isBound() << std::endl;
@@ -181,10 +183,12 @@ void GLView::drawPaintStrokes()
     glEnd();
     glViewport(0,0,width(),height());
     paintFbo()->release();
+    */
 }
 
 void GLView::drawPaintLayer()
 {
+    /*
     QMatrix4x4 cameraProjViewM;
     cameraProjViewM.ortho(0, width(), 0, height(), -1, 1);
 
@@ -201,6 +205,7 @@ void GLView::drawPaintLayer()
 
     glDisable(GL_BLEND);
     _paintDebugShader->release();
+    */
 }
 
 // duration in milliseconds
@@ -214,6 +219,7 @@ void GLView::setBusyMessage(QString message, int duration)
 
 void GLView::bakePaintLayer()
 {
+    /*
     Scene* scene = Scene::activeScene();
 
     transferFbo()->bind();
@@ -279,14 +285,17 @@ void GLView::bakePaintLayer()
     glViewport(0, 0, width(), height());
 
     _bakePaintLayer = false;
+    */
 }
 
 void GLView::mousePressEvent(QMouseEvent* event)
 {
+    std::cout << event->pos() << std::endl;
     // handle future keyboard widgets with this
-    this->setFocus();
+    //this->setFocus();
 
     //bool altDown = event->modifiers() & Qt::AltModifier;
+    /*
     bool camDown = event->modifiers() & Qt::AltModifier;
 
     if (mouseMode == MouseMode::FREE && camDown) {
@@ -304,6 +313,7 @@ void GLView::mousePressEvent(QMouseEvent* event)
             activeMouseButton = event->button();
         }
     }
+    */
 }
 
 void GLView::mouseDoubleClickEvent(QMouseEvent *event)
@@ -320,9 +330,11 @@ void GLView::mouseReleaseEvent(QMouseEvent* event)
         _camera->mouseReleased(_cameraScratch, event);
     }
     else if (mouseMode == MouseMode::HUD && event->button() == activeMouseButton) {
+        /*
         if (_brushColorRect.contains(event->pos())) { // HUD?
             _brushColor = QColorDialog::getColor(_brushColor, this, "Brush Color");
         }
+        */
 
         mouseMode = MouseMode::FREE;
         activeMouseButton = -1;
@@ -332,7 +344,7 @@ void GLView::mouseReleaseEvent(QMouseEvent* event)
         activeMouseButton = -1;
     }
 
-    update();
+    //update();
 }
 
 void GLView::mouseMoveEvent(QMouseEvent* event)
@@ -342,10 +354,10 @@ void GLView::mouseMoveEvent(QMouseEvent* event)
 
         //_workTool->mouseMoved(event);
 
-        update();
+        //update();
     }
     else if (mouseMode != MouseMode::FREE) {
-        mouseDragEvent(event);
+        //mouseDragEvent(event);
     }
 }
 
@@ -355,10 +367,10 @@ void GLView::mouseDragEvent(QMouseEvent* event)
         _camera->mouseDragged(_cameraScratch, event);
     }
     else if (mouseMode == MouseMode::TOOL) {
-        _strokePoints.append(Point2(event->pos().x(), height()-event->pos().y()));
+        //_strokePoints.append(Point2(event->pos().x(), height()-event->pos().y()));
     }
 
-    update();
+    //update();
 }
 
 void GLView::keyPressEvent(QKeyEvent *event)
@@ -366,7 +378,7 @@ void GLView::keyPressEvent(QKeyEvent *event)
     if (mouseMode == MouseMode::FREE) {
         if (event->key() == Qt::Key_Space) {
             _bakePaintLayer = true;
-            update();
+            //update();
         }
     }
 

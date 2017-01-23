@@ -24,7 +24,9 @@ SOURCES += main.cpp\
     scene.cpp \
     views/perspectiveview.cpp \
     views/uvview.cpp \
-    gl_util.cpp
+    gl_util.cpp \
+    viewcontainer.cpp \
+    paintutils.cpp
 
 HEADERS  += mainwindow.h \
             glview.h \
@@ -36,7 +38,9 @@ HEADERS  += mainwindow.h \
     scene.h \
     views/perspectiveview.h \
     views/uvview.h \
-    gl_util.h
+    gl_util.h \
+    viewcontainer.h \
+    paintutils.h
 
 FORMS    += mainwindow.ui
 

@@ -6,29 +6,23 @@
 #include <QColorDialog>
 #include <QTimer>
 #include <QTime>
-#include <QOpenGLDebugLogger>
 
 #include "transformable.h"
 #include "camera.h"
 #include "shader.h"
 #include "mesh.h"
+#include "paintutils.h"
 
 #define PAINT_FBO_WIDTH 2048
 
-class GLView : public QGLWidget
+class GLView
 {
-    Q_OBJECT
-
 public:
-    explicit GLView(QWidget *parent = 0);
-
-    void initializeGL();
-    QGLFormat defaultFormat();
-    void resizeGL(int w, int h);
-    void paintGL();
+    explicit GLView();
 
     virtual void glPass() = 0;
     virtual void painterPass(QPainter* painter) = 0;
+    virtual QString viewLabel() = 0;
 
     void mousePressEvent(QMouseEvent* event);
     void mouseDoubleClickEvent(QMouseEvent *);
@@ -37,6 +31,11 @@ public:
     void mouseDragEvent(QMouseEvent* event);
     void keyPressEvent(QKeyEvent* event);
 
+    void setSize(int width, int height) { _width = width; _height = height; }
+    void setWidth(int width) { _width = width; }
+    void setHeight(int height) { _height = height; }
+    int width() { return _width; }
+    int height() { return _height; }
 
     bool hasMeshTexture(Mesh* mesh);
     GLuint meshTexture(Mesh* mesh);
@@ -48,10 +47,6 @@ public slots:
 protected:
     QOpenGLFramebufferObject* transferFbo();
     QOpenGLFramebufferObject* paintFbo();
-
-    QGLShaderProgram*         _meshShader;
-    QGLShaderProgram*         _bakeShader;
-    QGLShaderProgram*         _paintDebugShader;
 
     Camera* _camera;
     QList<Point2>             _strokePoints;
@@ -74,7 +69,9 @@ private:
     QTimer _messageTimer;
     QString _busyMessage = "";
     QTime _messageFinished;
-    QOpenGLDebugLogger* _logger;
+
+    int _width;
+    int _height;
 
 };
 

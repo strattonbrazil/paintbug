@@ -5,13 +5,12 @@
 
 class UVView : public GLView
 {
-    Q_OBJECT
 public:
-    explicit UVView(QWidget *parent = 0);
+    explicit UVView();
 
     void glPass();
     void painterPass(QPainter *painter);
-
+    QString viewLabel() { return "UV"; }
 signals:
 
 public slots:

@@ -7,8 +7,7 @@
 #include "scene.h"
 #include "gl_util.h"
 
-PerspectiveView::PerspectiveView(QWidget *parent) :
-    GLView(parent)
+PerspectiveView::PerspectiveView()
 {
     _camera = new PerspectiveCamera();
     _brushColor = QColor(255,0,0);
@@ -17,9 +16,6 @@ PerspectiveView::PerspectiveView(QWidget *parent) :
 void PerspectiveView::glPass()
 {
     glEnable(GL_DEPTH_TEST);
-
-    glClearColor(.2,.2,.2,0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     QMatrix4x4 cameraProjM = _camera->getProjMatrix(width(), height());
     QMatrix4x4 cameraViewM = _camera->getViewMatrix(width(), height());
@@ -93,6 +89,7 @@ void PerspectiveView::glPass()
         glBindTexture(GL_TEXTURE_2D, paintFbo()->texture());
         glActiveTexture(GL_TEXTURE0);
 
+        /*
         _meshShader->bind();
         _meshShader->setUniformValue("objToWorld", objToWorld);
         _meshShader->setUniformValue("cameraPV", cameraProjViewM);
@@ -104,6 +101,7 @@ void PerspectiveView::glPass()
         renderMesh(mesh);
 
         _meshShader->release();
+        */
 
 
     }
@@ -125,13 +123,6 @@ void PerspectiveView::glPass()
     glDisable(GL_DEPTH_TEST);
 }
 
-void drawOutlinedText(QPainter* painter, int x, int y, const char* text, QColor bgColor, QColor fgColor)
-{
-    painter->setPen(bgColor);
-    painter->drawText(x, y, text);
-    painter->setPen(fgColor);
-    painter->drawText(x-2, y-2, text);
-}
 
 void PerspectiveView::painterPass(QPainter* painter)
 {
@@ -141,7 +132,7 @@ void PerspectiveView::painterPass(QPainter* painter)
 
     QFontMetrics fm(painter->font());
     const int textHeight = fm.height();
-    _brushColorRect = QRect(20, height()-120-textHeight, 100, 100);
+    _brushColorRect = QRect(20, height()-120-textHeight, 300, 100);
     painter->fillRect(_brushColorRect, _brushColor);
 }
 

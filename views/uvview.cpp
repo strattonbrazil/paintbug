@@ -2,8 +2,7 @@
 #include "scene.h"
 #include "gl_util.h"
 
-UVView::UVView(QWidget *parent) :
-    GLView(parent)
+UVView::UVView()
 {
     _camera = new OrthographicCamera();
     _validShaders = false;
@@ -17,8 +16,7 @@ void UVView::glPass()
     //    _validShaders = true;
    // }
 
-    glClearColor(.2,.2,.2,0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 
     QMatrix4x4 cameraProjM = _camera->getProjMatrix(width(), height());
     QMatrix4x4 cameraViewM = _camera->getViewMatrix(width(), height());
@@ -62,6 +60,7 @@ void UVView::glPass()
         glBindTexture(GL_TEXTURE_2D, paintFbo()->texture());
         glActiveTexture(GL_TEXTURE0);
 
+        /*
         _meshShader->bind();
         _meshShader->setUniformValue("objToWorld", objToWorld);
         _meshShader->setUniformValue("cameraPV", cameraProjViewM);
@@ -74,6 +73,7 @@ void UVView::glPass()
         renderMesh(mesh, MeshPropType::UV, MeshPropType::UV);
 
         _meshShader->release();
+        */
     }
 
 }

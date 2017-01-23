@@ -5,12 +5,12 @@
 
 class PerspectiveView : public GLView
 {
-    Q_OBJECT
 public:
-    explicit PerspectiveView(QWidget *parent = 0);
+    explicit PerspectiveView();
 
     void glPass();
     void painterPass(QPainter *painter);
+    QString viewLabel() { return "Perspective"; }
 signals:
 
 public slots:

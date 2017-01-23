@@ -14,42 +14,61 @@
    <string>Paint Bug</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_3">
     <item>
-     <widget class="QTabWidget" name="tabWidget">
-      <property name="currentIndex">
-       <number>0</number>
+     <widget class="QFrame" name="viewsFrame">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
       </property>
-      <widget class="QWidget" name="defaultPerspectiveTab">
-       <attribute name="title">
-        <string>Perspective</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <widget class="PerspectiveView" name="defaultPerspectiveView" native="true">
-          <property name="minimumSize">
-           <size>
-            <width>512</width>
-            <height>512</height>
-           </size>
-          </property>
-          <property name="windowType" stdset="0">
-           <string>PERSPECTIVE</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="defaultUVTab">
-       <attribute name="title">
-        <string>UV</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <widget class="UVView" name="defaultUVView" native="true"/>
-        </item>
-       </layout>
-      </widget>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QRadioButton" name="perspectiveUvButton">
+         <property name="text">
+          <string>Perspective/UV</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButton">
+         <property name="text">
+          <string>Perspective</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButton_2">
+         <property name="text">
+          <string>UV</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="ViewContainer" name="viewContainer" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
      </widget>
     </item>
    </layout>
@@ -60,7 +79,7 @@
      <x>0</x>
      <y>0</y>
      <width>552</width>
-     <height>27</height>
+     <height>19</height>
     </rect>
    </property>
   </widget>
@@ -83,15 +102,9 @@
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>PerspectiveView</class>
+   <class>ViewContainer</class>
    <extends>QWidget</extends>
-   <header>views/perspectiveview.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>UVView</class>
-   <extends>QWidget</extends>
-   <header>views/uvview.h</header>
+   <header>viewcontainer.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
