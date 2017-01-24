@@ -34,7 +34,9 @@ void PerspectiveView::glPass(GLResourceContext &ctx)
         if (!hasMeshTexture(mesh)) {
             std::cout << "creating mesh texture" << std::endl;
 
-            transferFbo()->bind();
+            QOpenGLFramebufferObject* transferFbo = ctx.transferFbo();
+
+            transferFbo->bind();
 
             GLuint textureId;
             glGenTextures(1, &textureId);
@@ -70,7 +72,7 @@ void PerspectiveView::glPass(GLResourceContext &ctx)
             glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 256, 256, 0);
 
 
-            transferFbo()->release();
+            transferFbo->release();
 
             //glActiveTexture(GL_TEXTURE0);
             //QImage img("/tmp/lena.jpg");
@@ -83,10 +85,12 @@ void PerspectiveView::glPass(GLResourceContext &ctx)
             setMeshTexture(mesh, textureId);
         }
 
+        QOpenGLFramebufferObject* paintFbo = ctx.paintFbo();
+
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, meshTexture(mesh));
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, paintFbo()->texture());
+        glBindTexture(GL_TEXTURE_2D, paintFbo->texture());
         glActiveTexture(GL_TEXTURE0);
 
         QGLShaderProgram* meshShader = ctx.meshShader();
@@ -120,6 +124,12 @@ void PerspectiveView::glPass(GLResourceContext &ctx)
     glEnd();
 
     glDisable(GL_DEPTH_TEST);
+
+    drawPaintStrokes(ctx);
+
+    if (_bakePaintLayer) {
+        bakePaintLayer(ctx);
+    }
 }
 
 

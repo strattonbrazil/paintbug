@@ -46,9 +46,6 @@ signals:
 public slots:
     void messageTimerUpdate();
 protected:
-    QOpenGLFramebufferObject* transferFbo();
-    QOpenGLFramebufferObject* paintFbo();
-
     Camera* _camera;
     QList<Point2>             _strokePoints;
     bool                      _bakePaintLayer;
@@ -59,14 +56,12 @@ protected:
     QOpenGLFramebufferObject* _transferFbo;
     QOpenGLFramebufferObject* _paintFbo;
 
-    void drawPaintStrokes();
+    void drawPaintStrokes(GLResourceContext &ctx);
     void drawPaintLayer();
 
     void setBusyMessage(QString message, int duration);
-
+    void bakePaintLayer(GLResourceContext &ctx);
 private:
-    void                     bakePaintLayer();
-
     QTimer _messageTimer;
     QString _busyMessage = "";
     QTime _messageFinished;

@@ -173,6 +173,9 @@ QMouseEvent ViewContainer::convertToRegion(QMouseEvent *event, QRect region)
 
 void ViewContainer::mousePressEvent(QMouseEvent* event)
 {
+    // handle future keyboard events with this
+    setFocus();
+
     if (_viewOwningMouse == "") {
         // get the view name and region
         QString viewName;
@@ -195,6 +198,7 @@ void ViewContainer::mousePressEvent(QMouseEvent* event)
         }
 
         _viewOwningMouse = viewName;
+        _lastViewFocused = viewName;
 
         QSharedPointer<GLView> view = _views[_viewOwningMouse];
         QMouseEvent localEvent = convertToRegion(event, region);
@@ -218,7 +222,6 @@ void ViewContainer::mouseReleaseEvent(QMouseEvent* event)
         QMouseEvent localEvent = convertToRegion(event, _owningRegion);
         view->mouseReleaseEvent(&localEvent);
 
-
         _viewOwningMouse = "";
     }
 }
@@ -234,17 +237,18 @@ void ViewContainer::mouseMoveEvent(QMouseEvent* event)
 
 void ViewContainer::mouseDragEvent(QMouseEvent* event)
 {
-    std::cout << "drag" << std::endl;
     if (_viewOwningMouse != "") {
         QSharedPointer<GLView> view = _views[_viewOwningMouse];
         QMouseEvent localEvent = convertToRegion(event, _owningRegion);
         view->mouseDragEvent(&localEvent);
-        std::cout << "dragging" << std::endl;
     }
 }
 
 void ViewContainer::keyPressEvent(QKeyEvent* event)
 {
-
+    if (_lastViewFocused != "") {
+        QSharedPointer<GLView> view = _views[_lastViewFocused];
+        view->keyPressEvent(event);
+    }
 }
 

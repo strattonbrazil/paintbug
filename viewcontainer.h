@@ -55,6 +55,7 @@ private:
     QHash<QString,QSharedPointer<GLView>> _views;
 
     QString _viewOwningMouse; // name of view, which has mouse
+    QString _lastViewFocused;
     Qt::MouseButton _mousePressButton;
     QRect _owningRegion; // region where mouse was clicked
 };
