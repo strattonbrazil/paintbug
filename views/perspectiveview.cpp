@@ -14,6 +14,11 @@ PerspectiveView::PerspectiveView(QWidget *parent) :
     _brushColor = QColor(255,0,0);
 }
 
+QString PerspectiveView::getViewLabel()
+{
+    return "Perspective";
+}
+
 void PerspectiveView::glPass()
 {
     glEnable(GL_DEPTH_TEST);
@@ -123,14 +128,6 @@ void PerspectiveView::glPass()
     glEnd();
 
     glDisable(GL_DEPTH_TEST);
-}
-
-void drawOutlinedText(QPainter* painter, int x, int y, const char* text, QColor bgColor, QColor fgColor)
-{
-    painter->setPen(bgColor);
-    painter->drawText(x, y, text);
-    painter->setPen(fgColor);
-    painter->drawText(x-2, y-2, text);
 }
 
 void PerspectiveView::painterPass(QPainter* painter)

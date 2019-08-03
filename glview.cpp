@@ -115,6 +115,8 @@ void GLView::paintGL()
 
     painterPass(&painter);
 
+    drawOutlinedText(&painter, 20, 20, getViewLabel(), QColor(0,0,0), QColor(255,255,255));
+
     if (_messageTimer.isActive()) {
         QFont prevFont = painter.font();
         QFont bakingFont(prevFont.family(), 20);
@@ -131,6 +133,14 @@ void GLView::paintGL()
     }
 
     painter.end();
+}
+
+void GLView::drawOutlinedText(QPainter* painter, int x, int y, QString text, QColor bgColor, QColor fgColor)
+{
+    painter->setPen(bgColor);
+    painter->drawText(x, y, text);
+    painter->setPen(fgColor);
+    painter->drawText(x-2, y-2, text);
 }
 
 static QHash<Mesh*,GLuint> meshTextures;

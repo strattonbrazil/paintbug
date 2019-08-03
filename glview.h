@@ -26,9 +26,11 @@ public:
     QGLFormat defaultFormat();
     void resizeGL(int w, int h);
     void paintGL();
+    void drawOutlinedText(QPainter* painter, int x, int y, QString text, QColor bgColor, QColor fgColor);
 
     virtual void glPass() = 0;
     virtual void painterPass(QPainter* painter) = 0;
+    virtual QString getViewLabel() = 0;
 
     void mousePressEvent(QMouseEvent* event);
     void mouseDoubleClickEvent(QMouseEvent *);

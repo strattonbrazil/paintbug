@@ -9,9 +9,9 @@ class UVView : public GLView
 public:
     explicit UVView(QWidget *parent = 0);
 
+    QString getViewLabel();
     void glPass();
     void painterPass(QPainter *painter);
-
 signals:
 
 public slots:

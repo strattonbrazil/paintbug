@@ -20,6 +20,19 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
+      <widget class="QWidget" name="perspectiveUVTab">
+       <attribute name="title">
+        <string>Perspective/UV</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="PerspectiveView" name="splitPerspectiveView" native="true"/>
+        </item>
+        <item>
+         <widget class="UVView" name="splitUVView" native="true"/>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="defaultPerspectiveTab">
        <attribute name="title">
         <string>Perspective</string>
@@ -60,7 +73,7 @@
      <x>0</x>
      <y>0</y>
      <width>552</width>
-     <height>27</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

@@ -10,6 +10,10 @@ UVView::UVView(QWidget *parent) :
     _brushColor = QColor(255,0,0);
 }
 
+QString UVView::getViewLabel() {
+    return "UV View";
+}
+
 void UVView::glPass()
 {
     //if (!_validShaders) {

@@ -9,6 +9,7 @@ class PerspectiveView : public GLView
 public:
     explicit PerspectiveView(QWidget *parent = 0);
 
+    QString getViewLabel();
     void glPass();
     void painterPass(QPainter *painter);
 signals:
