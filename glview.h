@@ -1,7 +1,7 @@
 #ifndef GLVIEW_H
 #define GLVIEW_H
 
-#include <QGLWidget>
+#include <QOpenGLWidget>
 #include <QOpenGLFramebufferObject>
 #include <QColorDialog>
 #include <QTimer>
@@ -15,7 +15,7 @@
 
 #define PAINT_FBO_WIDTH 2048
 
-class GLView : public QGLWidget
+class GLView : public QOpenGLWidget
 {
     Q_OBJECT
 
@@ -23,7 +23,6 @@ public:
     explicit GLView(QWidget *parent = 0);
 
     void initializeGL();
-    QGLFormat defaultFormat();
     void resizeGL(int w, int h);
     void paintGL();
     void drawOutlinedText(QPainter* painter, int x, int y, QString text, QColor bgColor, QColor fgColor);

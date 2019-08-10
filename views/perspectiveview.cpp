@@ -78,14 +78,7 @@ void PerspectiveView::glPass()
 
             glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 256, 256, 0);
 
-
             transferFbo()->release();
-
-            //glActiveTexture(GL_TEXTURE0);
-            //QImage img("/tmp/lena.jpg");
-            //QImage image = QGLWidget::convertToGLFormat(img);
-            //glTexSubImage2D(GL_TEXTURE_2D, 0, 0,0 , image.width(), image.height(),  GL_RGB, GL_UNSIGNED_BYTE, image.bits() );
-
 
             glViewport(0, 0, width(), height());
 

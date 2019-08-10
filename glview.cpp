@@ -15,18 +15,6 @@ int mouseMode = MouseMode::FREE;
 int activeMouseButton = -1;
 QList<GLView*> GLView::_glViews;
 
-// store the first GL widget and use it as the shared widget
-QGLWidget* firstWidget = 0;
-QGLWidget* sharedWidget(QGLWidget* view)
-{
-    if (firstWidget)
-        return firstWidget;
-    else {
-        firstWidget = view;
-        return 0;
-    }
-}
-
 QOpenGLFramebufferObject* sharedTransferFbo = 0;
 QOpenGLFramebufferObject* GLView::transferFbo() {
     if (!sharedTransferFbo) {
@@ -51,7 +39,7 @@ QOpenGLFramebufferObject* GLView::paintFbo() {
 }
 
 GLView::GLView(QWidget *parent) :
-    QGLWidget(parent, sharedWidget(this))
+    QOpenGLWidget(parent)
 {
     connect(&_messageTimer, SIGNAL(timeout()), this, SLOT(messageTimerUpdate()));
     _messageTimer.setInterval(100);
@@ -70,19 +58,6 @@ void GLView::initializeGL()
 #endif
     _logger = new QOpenGLDebugLogger(this);
     _logger->initialize();
-}
-
-QGLFormat GLView::defaultFormat()
-{
-    QGLFormat format;
-    //format.setVersion(3,2);
-    //format.setRenderableType(QSurfaceFormat::OpenGL);
-    //format.setAlpha(true);
-    //format.setStencil(true);
-    //format.setVersion(3,1);
-    //format.setProfile(QSurfaceFormat::CoreProfile);
-    //format.setOption(QSurfaceFormat::DebugContext);
-    return format;
 }
 
 void GLView::resizeGL(int w, int h)
@@ -177,8 +152,10 @@ void GLView::drawPaintStrokes()
 {
     // NOT BINDING!!!
     paintFbo()->bind();
+    std::cout << "---" << std::endl;
+    std::cout << "view: " << this << std::endl;
     std::cout << paintFbo()->isBound() << std::endl;
-    std::cout << QOpenGLContext::currentContext() << std::endl;
+    std::cout << "context: " << QOpenGLContext::currentContext() << std::endl;
     glViewport(0,0,PAINT_FBO_WIDTH,PAINT_FBO_WIDTH);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
