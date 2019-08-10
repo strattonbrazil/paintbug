@@ -13,6 +13,7 @@ namespace MouseMode {
 
 int mouseMode = MouseMode::FREE;
 int activeMouseButton = -1;
+QList<GLView*> GLView::_glViews;
 
 // store the first GL widget and use it as the shared widget
 QGLWidget* firstWidget = 0;
@@ -54,6 +55,8 @@ GLView::GLView(QWidget *parent) :
 {
     connect(&_messageTimer, SIGNAL(timeout()), this, SLOT(messageTimerUpdate()));
     _messageTimer.setInterval(100);
+
+    _glViews.append(this); // keep track of all views
 
     _bakePaintLayer = false;
 }
@@ -287,6 +290,13 @@ void GLView::bakePaintLayer()
     _strokePoints.clear();
 
     glViewport(0, 0, width(), height());
+
+    // redraw other views that may be using texture
+    foreach (GLView* view, _glViews) {
+        if (view != this) {
+            view->update();
+        }
+    }
 
     _bakePaintLayer = false;
 }

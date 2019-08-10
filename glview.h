@@ -64,6 +64,8 @@ protected:
     QRect                     _brushColorRect;
     QColor                    _brushColor;
 
+    static QList<GLView*> _glViews;
+
     void drawPaintStrokes();
     void drawPaintLayer();
 
@@ -76,7 +78,6 @@ private:
     QString _busyMessage = "";
     QTime _messageFinished;
     QOpenGLDebugLogger* _logger;
-
 };
 
 #endif // GLVIEW_H
