@@ -155,7 +155,8 @@ void GLView::drawPaintStrokes()
     std::cout << "---" << std::endl;
     std::cout << "view: " << this << std::endl;
     std::cout << paintFbo()->isBound() << std::endl;
-    std::cout << "context: " << QOpenGLContext::currentContext() << std::endl;
+    std::cout << "context: " << this->context() << std::endl;
+    std::cout << "fbo: " << paintFbo() << std::endl;
     glViewport(0,0,PAINT_FBO_WIDTH,PAINT_FBO_WIDTH);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
