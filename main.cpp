@@ -8,9 +8,9 @@
 int main(int argc, char *argv[])
 {
     QSurfaceFormat format;
-    format.setMajorVersion(3);
+    format.setMajorVersion(4);
     format.setMinorVersion(2);
-    format.setProfile(QSurfaceFormat::CoreProfile);
+    format.setProfile(QSurfaceFormat::CompatibilityProfile);
     format.setOption(QSurfaceFormat::DebugContext);
     format.setSamples(0);
     QSurfaceFormat::setDefaultFormat(format);

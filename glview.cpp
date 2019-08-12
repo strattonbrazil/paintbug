@@ -15,27 +15,25 @@ int mouseMode = MouseMode::FREE;
 int activeMouseButton = -1;
 QList<GLView*> GLView::_glViews;
 
-QOpenGLFramebufferObject* sharedTransferFbo = 0;
 QOpenGLFramebufferObject* GLView::transferFbo() {
-    if (!sharedTransferFbo) {
-        sharedTransferFbo = new QOpenGLFramebufferObject(PAINT_FBO_WIDTH, PAINT_FBO_WIDTH);
+    if (!_transferFbo) {
+        _transferFbo = new QOpenGLFramebufferObject(PAINT_FBO_WIDTH, PAINT_FBO_WIDTH);
     }
-    return sharedTransferFbo;
+    return _transferFbo;
 }
 
-QOpenGLFramebufferObject* sharedPaintFbo = 0;
 QOpenGLFramebufferObject* GLView::paintFbo() {
-    if (!sharedPaintFbo) {
+    if (!_paintFbo) {
         QOpenGLFramebufferObjectFormat format;
         format.setInternalTextureFormat(GL_RED);
-        sharedPaintFbo = new QOpenGLFramebufferObject(PAINT_FBO_WIDTH, PAINT_FBO_WIDTH, format);
+        _paintFbo = new QOpenGLFramebufferObject(PAINT_FBO_WIDTH, PAINT_FBO_WIDTH, format);
 
-        sharedPaintFbo->bind();
+        _paintFbo->bind();
         glClearColor(0,0,0,0); // only red is used
         glClear(GL_COLOR_BUFFER_BIT);
-        sharedPaintFbo->release();
+        _paintFbo->release();
     }
-    return sharedPaintFbo;
+    return _paintFbo;
 }
 
 GLView::GLView(QWidget *parent) :
@@ -52,7 +50,7 @@ GLView::GLView(QWidget *parent) :
 void GLView::initializeGL()
 {
     _meshShader = ShaderFactory::buildMeshShader(this);
-    _bakeShader = ShaderFactory::buildBakeShader(this);
+    _bakeShader = ShaderFactory::buildBakeShader(this);    
 #if DEBUG_PAINT_LAYER
         _paintDebugShader = ShaderFactory::buildPaintDebugShader(this);
 #endif
@@ -150,13 +148,7 @@ void GLView::messageTimerUpdate()
 
 void GLView::drawPaintStrokes()
 {
-    // NOT BINDING!!!
     paintFbo()->bind();
-    std::cout << "---" << std::endl;
-    std::cout << "view: " << this << std::endl;
-    std::cout << paintFbo()->isBound() << std::endl;
-    std::cout << "context: " << this->context() << std::endl;
-    std::cout << "fbo: " << paintFbo() << std::endl;
     glViewport(0,0,PAINT_FBO_WIDTH,PAINT_FBO_WIDTH);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();

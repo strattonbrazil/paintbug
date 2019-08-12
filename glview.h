@@ -51,6 +51,9 @@ protected:
     QOpenGLFramebufferObject* transferFbo();
     QOpenGLFramebufferObject* paintFbo();
 
+    QOpenGLFramebufferObject* _transferFbo = 0;
+    QOpenGLFramebufferObject* _paintFbo = 0;
+
     // non-shared GL resources
     QGLShaderProgram*         _meshShader;
     QGLShaderProgram*         _bakeShader;
