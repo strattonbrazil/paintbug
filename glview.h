@@ -12,6 +12,7 @@
 #include "camera.h"
 #include "shader.h"
 #include "mesh.h"
+#include "constants.h"
 
 #define PAINT_FBO_WIDTH 2048
 
@@ -30,6 +31,7 @@ public:
     virtual void glPass() = 0;
     virtual void painterPass(QPainter* painter) = 0;
     virtual QString getViewLabel() = 0;
+    virtual MeshPropType meshBakingSpace() = 0; // returns the space the geometry is rendered in
 
     void mousePressEvent(QMouseEvent* event);
     void mouseDoubleClickEvent(QMouseEvent *);

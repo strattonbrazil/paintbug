@@ -12,6 +12,7 @@ public:
     QString getViewLabel();
     void glPass();
     void painterPass(QPainter *painter);
+    MeshPropType meshBakingSpace() { return MeshPropType::UV; }
 signals:
 
 public slots:

@@ -36,7 +36,8 @@ HEADERS  += mainwindow.h \
     scene.h \
     views/perspectiveview.h \
     views/uvview.h \
-    gl_util.h
+    gl_util.h \
+    constants.h
 
 FORMS    += mainwindow.ui
 

@@ -2,10 +2,7 @@
 #define GL_UTIL_H
 
 #include "mesh.h"
-
-enum MeshPropType {
-    UV, GEOMETRY
-};
+#include "constants.h"
 
 void renderMesh(Mesh* mesh,
                 MeshPropType texCoordType=MeshPropType::UV,

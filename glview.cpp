@@ -238,8 +238,7 @@ void GLView::bakePaintLayer()
         _bakeShader->setUniformValue("targetScale", targetScale);
         _bakeShader->setUniformValue("brushColor", _brushColor.redF(), _brushColor.greenF(), _brushColor.blueF(), 1);
 
-        // TODO: is this correct for UV view?
-        renderMesh(mesh, MeshPropType::GEOMETRY, MeshPropType::UV);
+        renderMesh(mesh, meshBakingSpace(), MeshPropType::UV);
 
         _bakeShader->release();
 
