@@ -24,7 +24,9 @@ SOURCES += main.cpp\
     scene.cpp \
     views/perspectiveview.cpp \
     views/uvview.cpp \
-    gl_util.cpp
+    gl_util.cpp \
+    buttons/colortoolbutton.cpp \
+    sessionsettings.cpp
 
 HEADERS  += mainwindow.h \
             glview.h \
@@ -37,7 +39,9 @@ HEADERS  += mainwindow.h \
     views/perspectiveview.h \
     views/uvview.h \
     gl_util.h \
-    constants.h
+    constants.h \
+    buttons/colortoolbutton.h \
+    sessionsettings.h
 
 FORMS    += mainwindow.ui
 

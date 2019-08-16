@@ -65,8 +65,6 @@ protected:
     QList<Point2>             _strokePoints;
     bool                      _bakePaintLayer;
     CameraScratch             _cameraScratch;
-    QRect                     _brushColorRect;
-    QColor                    _brushColor;
 
     static QList<GLView*> _glViews;
 

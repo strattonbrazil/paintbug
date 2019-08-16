@@ -4,6 +4,7 @@
 
 #include "scene.h"
 #include "gl_util.h"
+#include "sessionsettings.h"
 
 #define DEBUG_PAINT_LAYER 0
 
@@ -227,7 +228,7 @@ void GLView::bakePaintLayer()
 
         QVector2D targetScale = QVector2D(width() / (float)PAINT_FBO_WIDTH, height() / (float)PAINT_FBO_WIDTH);
 
-        //QColor _brushColor(255,0,0);
+        QColor brushColor = settings()->brushColor();
 
         _bakeShader->bind();
         _bakeShader->setUniformValue("objToWorld", objToWorld);
@@ -236,7 +237,7 @@ void GLView::bakePaintLayer()
         _bakeShader->setUniformValue("meshTexture", 0);
         _bakeShader->setUniformValue("paintTexture", 1);
         _bakeShader->setUniformValue("targetScale", targetScale);
-        _bakeShader->setUniformValue("brushColor", _brushColor.redF(), _brushColor.greenF(), _brushColor.blueF(), 1);
+        _bakeShader->setUniformValue("brushColor", brushColor.redF(), brushColor.greenF(), brushColor.blueF(), 1);
 
         renderMesh(mesh, meshBakingSpace(), MeshPropType::UV);
 
@@ -284,14 +285,9 @@ void GLView::mousePressEvent(QMouseEvent* event)
         _camera->mousePressed(_cameraScratch, event);
     }
     else if (mouseMode == MouseMode::FREE && event->button() & Qt::LeftButton) {
-        if (_brushColorRect.contains(event->pos())) { // HUD?
-            mouseMode = MouseMode::HUD;
-            activeMouseButton = event->button();
-        } else {
-            _strokePoints.append(Point2(event->pos().x(), height()-event->pos().y()));
-            mouseMode = MouseMode::TOOL;
-            activeMouseButton = event->button();
-        }
+        _strokePoints.append(Point2(event->pos().x(), height()-event->pos().y()));
+        mouseMode = MouseMode::TOOL;
+        activeMouseButton = event->button();
     }
 }
 
@@ -309,10 +305,6 @@ void GLView::mouseReleaseEvent(QMouseEvent* event)
         _camera->mouseReleased(_cameraScratch, event);
     }
     else if (mouseMode == MouseMode::HUD && event->button() == activeMouseButton) {
-        if (_brushColorRect.contains(event->pos())) { // HUD?
-            _brushColor = QColorDialog::getColor(_brushColor, this, "Brush Color");
-        }
-
         mouseMode = MouseMode::FREE;
         activeMouseButton = -1;
     }

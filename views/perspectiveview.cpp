@@ -6,12 +6,12 @@
 #include "perspectiveview.h"
 #include "scene.h"
 #include "gl_util.h"
+#include "sessionsettings.h"
 
 PerspectiveView::PerspectiveView(QWidget *parent) :
     GLView(parent)
 {
     _camera = new PerspectiveCamera();
-    _brushColor = QColor(255,0,0);
 }
 
 QString PerspectiveView::getViewLabel()
@@ -91,11 +91,13 @@ void PerspectiveView::glPass()
         glBindTexture(GL_TEXTURE_2D, paintFbo()->texture());
         glActiveTexture(GL_TEXTURE0);
 
+        QColor brushColor = settings()->brushColor();
+
         _meshShader->bind();
         _meshShader->setUniformValue("objToWorld", objToWorld);
         _meshShader->setUniformValue("cameraPV", cameraProjViewM);
         _meshShader->setUniformValue("paintFboWidth", PAINT_FBO_WIDTH);
-        _meshShader->setUniformValue("brushColor", _brushColor.redF(), _brushColor.greenF(), _brushColor.blueF(), 1);
+        _meshShader->setUniformValue("brushColor", brushColor.redF(), brushColor.greenF(), brushColor.blueF(), 1);
         _meshShader->setUniformValue("meshTexture", 0);
         _meshShader->setUniformValue("paintTexture", 1);
 
@@ -125,14 +127,6 @@ void PerspectiveView::glPass()
 
 void PerspectiveView::painterPass(QPainter* painter)
 {
-    // render HUD
-    //
-    drawOutlinedText(painter, 20, height()-20, "Brush Color", QColor(0,0,0), QColor(255,255,255));
-
-    QFontMetrics fm(painter->font());
-    const int textHeight = fm.height();
-    _brushColorRect = QRect(20, height()-120-textHeight, 100, 100);
-    painter->fillRect(_brushColorRect, _brushColor);
 }
 
 
