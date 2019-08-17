@@ -120,22 +120,26 @@ void GLView::drawOutlinedText(QPainter* painter, int x, int y, QString text, QCo
     painter->drawText(x-2, y-2, text);
 }
 
-static QHash<Mesh*,GLuint> meshTextures;
-
+static QHash<Mesh*,QPair<GLuint,GLuint>> meshTextures;
 
 bool GLView::hasMeshTexture(Mesh *mesh)
 {
     return meshTextures.contains(mesh);
 }
 
-GLuint GLView::meshTexture(Mesh *mesh)
+GLuint GLView::meshTextureId(Mesh *mesh)
 {
-    return meshTextures[mesh];
+    return meshTextures[mesh].first;
 }
 
-void GLView::setMeshTexture(Mesh *mesh, GLuint id)
+GLuint GLView::meshTextureSize(Mesh *mesh)
 {
-    meshTextures[mesh] = id;
+    return meshTextures[mesh].second;
+}
+
+void GLView::setMeshTexture(Mesh *mesh, GLuint id, GLuint size)
+{
+    meshTextures[mesh] = QPair<GLuint,GLuint>(id, size);
 }
 
 
@@ -202,8 +206,6 @@ void GLView::bakePaintLayer()
 
     transferFbo()->bind();
 
-    glViewport(0, 0, 256, 256);
-
     QMatrix4x4 cameraProjM = _camera->getProjMatrix(width(), height());
     QMatrix4x4 cameraViewM = _camera->getViewMatrix(width(), height());
     QMatrix4x4 cameraProjViewM = cameraProjM * cameraViewM;
@@ -218,10 +220,13 @@ void GLView::bakePaintLayer()
         meshes.next();
         Mesh* mesh = meshes.value();
 
+        const int TARGET_TEXTURE_SIZE = meshTextureSize(mesh);
+        glViewport(0, 0, TARGET_TEXTURE_SIZE, TARGET_TEXTURE_SIZE);
+
         QMatrix4x4 objToWorld;
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, meshTexture(mesh));
+        glBindTexture(GL_TEXTURE_2D, meshTextureId(mesh));
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, paintFbo()->texture());
         glActiveTexture(GL_TEXTURE0);
@@ -245,8 +250,8 @@ void GLView::bakePaintLayer()
 
         // copy bake back into mesh texture
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, meshTexture(mesh));
-        glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 256, 256, 0);
+        glBindTexture(GL_TEXTURE_2D, meshTextureId(mesh));
+        glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, TARGET_TEXTURE_SIZE, TARGET_TEXTURE_SIZE, 0);
     }
 
     transferFbo()->release();

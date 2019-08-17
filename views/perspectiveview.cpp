@@ -43,6 +43,8 @@ void PerspectiveView::glPass()
         if (!hasMeshTexture(mesh)) {
             std::cout << "creating mesh texture" << std::endl;
 
+            const int TEXTURE_SIZE = 32;
+
             transferFbo()->bind();
 
             GLuint textureId;
@@ -50,7 +52,7 @@ void PerspectiveView::glPass()
 
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, textureId);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TEXTURE_SIZE, TEXTURE_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
             glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
             glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -64,7 +66,7 @@ void PerspectiveView::glPass()
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
 
-            glViewport(0, 0, 256, 256);
+            glViewport(0, 0, TEXTURE_SIZE, TEXTURE_SIZE);
 
             glColor3f(.8,.8,.8);
             glBegin(GL_QUADS);
@@ -76,17 +78,17 @@ void PerspectiveView::glPass()
             }
             glEnd();
 
-            glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 256, 256, 0);
+            glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, TEXTURE_SIZE, TEXTURE_SIZE, 0);
 
             transferFbo()->release();
 
             glViewport(0, 0, width(), height());
 
-            setMeshTexture(mesh, textureId);
+            setMeshTexture(mesh, textureId, TEXTURE_SIZE);
         }
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, meshTexture(mesh));
+        glBindTexture(GL_TEXTURE_2D, meshTextureId(mesh));
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, paintFbo()->texture());
         glActiveTexture(GL_TEXTURE0);

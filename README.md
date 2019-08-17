@@ -5,7 +5,6 @@ paintbug
 
 TODO
 --------
-* support painting mesh texture in UV space
 * refactor duplicate code from mesh-render/bake-render shaders
 * bake on camera move (if dirty)
 * keep from painting on one panel if other dirty

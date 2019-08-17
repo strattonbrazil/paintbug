@@ -42,8 +42,9 @@ public:
 
 
     bool hasMeshTexture(Mesh* mesh);
-    GLuint meshTexture(Mesh* mesh);
-    void setMeshTexture(Mesh* mesh, GLuint id);
+    GLuint meshTextureId(Mesh* mesh);
+    GLuint meshTextureSize(Mesh* mesh);
+    void setMeshTexture(Mesh* mesh, GLuint id, GLuint size);
 signals:
 
 public slots:

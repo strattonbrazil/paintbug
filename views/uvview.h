@@ -17,7 +17,6 @@ signals:
 
 public slots:
 private:
-    QColor                    _brushColor;
     bool                      _validShaders;
 };
 

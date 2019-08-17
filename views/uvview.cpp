@@ -1,13 +1,13 @@
 #include "uvview.h"
 #include "scene.h"
 #include "gl_util.h"
+#include "sessionsettings.h"
 
 UVView::UVView(QWidget *parent) :
     GLView(parent)
 {
     _camera = new OrthographicCamera();
     _validShaders = false;
-    _brushColor = QColor(255,0,0);
 }
 
 QString UVView::getViewLabel() {
@@ -61,16 +61,18 @@ void UVView::glPass()
         Mesh* mesh = meshes.value();
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, meshTexture(mesh));
+        glBindTexture(GL_TEXTURE_2D, meshTextureId(mesh));
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, paintFbo()->texture());
         glActiveTexture(GL_TEXTURE0);
+
+        QColor brushColor = settings()->brushColor();
 
         _meshShader->bind();
         _meshShader->setUniformValue("objToWorld", objToWorld);
         _meshShader->setUniformValue("cameraPV", cameraProjViewM);
         _meshShader->setUniformValue("paintFboWidth", PAINT_FBO_WIDTH);
-        _meshShader->setUniformValue("brushColor", _brushColor.redF(), _brushColor.greenF(), _brushColor.blueF(), 1);
+        _meshShader->setUniformValue("brushColor", brushColor.redF(), brushColor.greenF(), brushColor.blueF(), 1);
         _meshShader->setUniformValue("meshTexture", 0);
         _meshShader->setUniformValue("paintTexture", 1);
 
