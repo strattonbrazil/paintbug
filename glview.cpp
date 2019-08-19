@@ -1,5 +1,6 @@
 #include "glview.h"
 
+#include <QOpenGLTexture>
 #include <iostream>
 
 #include "scene.h"
@@ -26,7 +27,7 @@ QOpenGLFramebufferObject* GLView::transferFbo() {
 QOpenGLFramebufferObject* GLView::paintFbo() {
     if (!_paintFbo) {
         QOpenGLFramebufferObjectFormat format;
-        format.setInternalTextureFormat(GL_RED);
+        format.setInternalTextureFormat(GL_R8);
         _paintFbo = new QOpenGLFramebufferObject(PAINT_FBO_WIDTH, PAINT_FBO_WIDTH, format);
 
         _paintFbo->bind();
@@ -43,10 +44,14 @@ GLView::GLView(QWidget *parent) :
     connect(&_messageTimer, SIGNAL(timeout()), this, SLOT(messageTimerUpdate()));
     _messageTimer.setInterval(100);
 
+    setMouseTracking(true);
+
     _glViews.append(this); // keep track of all views
 
     _bakePaintLayer = false;
 }
+
+QOpenGLTexture* brushTexture = 0;
 
 void GLView::initializeGL()
 {
@@ -57,6 +62,8 @@ void GLView::initializeGL()
 #endif
     _logger = new QOpenGLDebugLogger(this);
     _logger->initialize();
+
+    brushTexture = new QOpenGLTexture(QImage(QString(":/brushes/resources/brushes/brush1.png")));
 }
 
 void GLView::resizeGL(int w, int h)
@@ -78,6 +85,9 @@ void GLView::paintGL()
 
     // draw strokes onto paint FBO
     drawPaintStrokes();
+
+    // draw brush overlay
+    drawBrush();
 
 #if DEBUG_PAINT_LAYER
     drawPaintLayer();
@@ -120,6 +130,43 @@ void GLView::drawOutlinedText(QPainter* painter, int x, int y, QString text, QCo
     painter->drawText(x-2, y-2, text);
 }
 
+void GLView::drawBrush()
+{
+    brushTexture->bind();
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, width(), 0, height(), -1, 1);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    QPoint cursorP = this->mapFromGlobal(QCursor::pos());
+    cursorP.setY(height() - cursorP.y());
+    int brushRadius = 32;
+
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendEquation(GL_FUNC_ADD);
+    glBegin(GL_QUADS);
+    {
+        glTexCoord2f(0, 0);
+        glVertex2f(-brushRadius + cursorP.x(), -brushRadius + cursorP.y());
+        glTexCoord2f(1, 0);
+        glVertex2f(brushRadius + cursorP.x(), -brushRadius + cursorP.y());
+        glTexCoord2f(1, 1);
+        glVertex2f(brushRadius + cursorP.x(), brushRadius + cursorP.y());
+        glTexCoord2f(0, 1);
+        glVertex2f(-brushRadius + cursorP.x(), brushRadius + cursorP.y());
+    }
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_BLEND);
+
+    brushTexture->release();
+    //QPoint cursorP = this->mapFromGlobal(QCursor::pos());
+    //painter.drawImage(cursorP, foo);
+}
+
 static QHash<Mesh*,QPair<GLuint,GLuint>> meshTextures;
 
 bool GLView::hasMeshTexture(Mesh *mesh)
@@ -153,6 +200,8 @@ void GLView::messageTimerUpdate()
 
 void GLView::drawPaintStrokes()
 {
+    int brushRadius = 32;
+
     paintFbo()->bind();
     glViewport(0,0,PAINT_FBO_WIDTH,PAINT_FBO_WIDTH);
     glMatrixMode(GL_PROJECTION);
@@ -160,13 +209,35 @@ void GLView::drawPaintStrokes()
     glOrtho(0, PAINT_FBO_WIDTH, 0, PAINT_FBO_WIDTH, -1, 1);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    glPointSize(20.0f);
-    glBegin(GL_POINTS);
+
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //glBlendEquation(GL_MAX);
+    //glAlphaFunc(GL_GREATER, 0.5);
+    //glEnable(GL_ALPHA_TEST);
+
+    brushTexture->bind();
+
+    glBegin(GL_QUADS);
     glColor4f(1,1,1,1);
     foreach (Point2 p, _strokePoints) {
-        glVertex2f(p.x(), p.y());
+        glTexCoord2f(0, 0);
+        glVertex2f(-brushRadius + p.x(), -brushRadius + p.y());
+        glTexCoord2f(1, 0);
+        glVertex2f(brushRadius + p.x(), -brushRadius + p.y());
+        glTexCoord2f(1, 1);
+        glVertex2f(brushRadius + p.x(), brushRadius + p.y());
+        glTexCoord2f(0, 1);
+        glVertex2f(-brushRadius + p.x(), brushRadius + p.y());
     }
     glEnd();
+
+    brushTexture->release();
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_BLEND);
+    //glDisable(GL_ALPHA_TEST);
+
     glViewport(0,0,width(),height());
     paintFbo()->release();
 }
@@ -328,11 +399,13 @@ void GLView::mouseMoveEvent(QMouseEvent* event)
 
         //_workTool->mouseMoved(event);
 
-        update();
+
     }
     else if (mouseMode != MouseMode::FREE) {
         mouseDragEvent(event);
     }
+
+    update();
 }
 
 void GLView::mouseDragEvent(QMouseEvent* event)

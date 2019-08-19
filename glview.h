@@ -27,6 +27,7 @@ public:
     void resizeGL(int w, int h);
     void paintGL();
     void drawOutlinedText(QPainter* painter, int x, int y, QString text, QColor bgColor, QColor fgColor);
+    void drawBrush();
 
     virtual void glPass() = 0;
     virtual void painterPass(QPainter* painter) = 0;

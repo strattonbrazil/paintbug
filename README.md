@@ -10,4 +10,5 @@ TODO
 * keep from painting on one panel if other dirty
 * remove floating gl* references, use inheritance instead
 * optimization: create paint FBO only when needed
-* show paint cursor for area of effect
+* show correct paint color for overlay brush
+* allow adjusting brush size
