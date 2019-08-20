@@ -141,7 +141,7 @@ void GLView::drawBrush()
 
     QPoint cursorP = this->mapFromGlobal(QCursor::pos());
     cursorP.setY(height() - cursorP.y());
-    int brushRadius = 32;
+    int brushRadius = settings()->brushSize() * 0.5f;
 
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
@@ -200,7 +200,7 @@ void GLView::messageTimerUpdate()
 
 void GLView::drawPaintStrokes()
 {
-    int brushRadius = 32;
+    int brushRadius = settings()->brushSize() * 0.5f;
 
     paintFbo()->bind();
     glViewport(0,0,PAINT_FBO_WIDTH,PAINT_FBO_WIDTH);

@@ -31,7 +31,7 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <property name="spacing">
-        <number>0</number>
+        <number>2</number>
        </property>
        <property name="leftMargin">
         <number>0</number>
@@ -49,6 +49,22 @@
         <widget class="ColorToolButton" name="colorButton">
          <property name="toolTip">
           <string>Brush Color</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>32</width>
+           <height>32</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="BrushColorButton" name="brushSizeButton">
+         <property name="toolTip">
+          <string>Brush Size</string>
          </property>
          <property name="text">
           <string/>
@@ -159,6 +175,11 @@
    <class>ColorToolButton</class>
    <extends>QToolButton</extends>
    <header>buttons/colortoolbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>BrushColorButton</class>
+   <extends>QToolButton</extends>
+   <header>buttons/brushcolorbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

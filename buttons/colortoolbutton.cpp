@@ -7,8 +7,6 @@
 
 #include "sessionsettings.h"
 
-#include <QDebug>
-
 ColorToolButton::ColorToolButton(QWidget *parent) : QToolButton(parent)
 {
     connect(this, SIGNAL(released()), this, SLOT(onButtonClicked()));
@@ -34,5 +32,6 @@ void ColorToolButton::onButtonClicked()
     QColor newColor = QColorDialog::getColor(settings()->brushColor(), this, "Brush Color");
     if (newColor.isValid()) {
         settings()->setBrushColor(newColor);
+        update();
     }
 }

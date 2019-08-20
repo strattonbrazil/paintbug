@@ -11,5 +11,6 @@ SessionSettings* settings()
 
 SessionSettings::SessionSettings(QObject *parent) : QObject(parent)
 {
-
+    _brushColor = QColor(0,0,0);
+    _brushSize = 64;
 }
