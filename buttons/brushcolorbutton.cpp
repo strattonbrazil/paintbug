@@ -1,4 +1,4 @@
-#include "colortoolbutton.h"
+#include "brushcolorbutton.h"
 
 #include <QPainter>
 #include <QBrush>
@@ -7,13 +7,13 @@
 
 #include "sessionsettings.h"
 
-ColorToolButton::ColorToolButton(QWidget *parent) : QToolButton(parent)
+BrushColorButton::BrushColorButton(QWidget *parent) : QToolButton(parent)
 {
     connect(this, SIGNAL(released()), this, SLOT(onButtonClicked()));
 }
 
 
-void ColorToolButton::paintEvent(QPaintEvent *event)
+void BrushColorButton::paintEvent(QPaintEvent *event)
 {
     QToolButton::paintEvent(event);
 
@@ -27,7 +27,7 @@ void ColorToolButton::paintEvent(QPaintEvent *event)
     p.fillRect( colorRect, b );
 }
 
-void ColorToolButton::onButtonClicked()
+void BrushColorButton::onButtonClicked()
 {
     QColor newColor = QColorDialog::getColor(settings()->brushColor(), this, "Brush Color");
     if (newColor.isValid()) {

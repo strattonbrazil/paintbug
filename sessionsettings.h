@@ -5,6 +5,8 @@
 #include <QColor>
 #include <algorithm>
 
+#define MAX_BRUSH_SIZE 256
+
 class SessionSettings : public QObject
 {
     Q_OBJECT
@@ -17,7 +19,7 @@ public:
     void setBrushColor(QColor c) { _brushColor = c; }
 
     int brushSize() { return _brushSize; }
-    void setBrushSize(int s) { _brushSize = std::max(1, std::min(s, 256)); }
+    void setBrushSize(int s) { _brushSize = std::max(1, std::min(s, MAX_BRUSH_SIZE)); }
 signals:
 
 public slots:

@@ -46,7 +46,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="ColorToolButton" name="colorButton">
+        <widget class="BrushColorButton" name="colorButton">
          <property name="toolTip">
           <string>Brush Color</string>
          </property>
@@ -55,14 +55,14 @@
          </property>
          <property name="iconSize">
           <size>
-           <width>32</width>
-           <height>32</height>
+           <width>64</width>
+           <height>64</height>
           </size>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="BrushColorButton" name="brushSizeButton">
+        <widget class="BrushSizeButton" name="brushSizeButton">
          <property name="toolTip">
           <string>Brush Size</string>
          </property>
@@ -71,8 +71,8 @@
          </property>
          <property name="iconSize">
           <size>
-           <width>32</width>
-           <height>32</height>
+           <width>64</width>
+           <height>64</height>
           </size>
          </property>
         </widget>
@@ -172,14 +172,14 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>ColorToolButton</class>
-   <extends>QToolButton</extends>
-   <header>buttons/colortoolbutton.h</header>
-  </customwidget>
-  <customwidget>
    <class>BrushColorButton</class>
    <extends>QToolButton</extends>
    <header>buttons/brushcolorbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>BrushSizeButton</class>
+   <extends>QToolButton</extends>
+   <header>buttons/brushsizebutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

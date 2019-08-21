@@ -11,5 +11,4 @@ TODO
 * remove floating gl* references, use inheritance instead
 * optimization: create paint FBO only when needed
 * show correct paint color for overlay brush
-* allow adjusting brush size
 * use splines for line stamps

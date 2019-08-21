@@ -25,9 +25,9 @@ SOURCES += main.cpp\
     views/perspectiveview.cpp \
     views/uvview.cpp \
     gl_util.cpp \
-    buttons/colortoolbutton.cpp \
     sessionsettings.cpp \
-    buttons/brushsizebutton.cpp
+    buttons/brushsizebutton.cpp \
+    buttons/brushcolorbutton.cpp
 
 HEADERS  += mainwindow.h \
             glview.h \
@@ -41,9 +41,9 @@ HEADERS  += mainwindow.h \
     views/uvview.h \
     gl_util.h \
     constants.h \
-    buttons/colortoolbutton.h \
     sessionsettings.h \
-    buttons/brushsizebutton.h
+    buttons/brushsizebutton.h \
+    buttons/brushcolorbutton.h
 
 FORMS    += mainwindow.ui
 
