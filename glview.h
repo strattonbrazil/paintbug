@@ -39,6 +39,7 @@ public:
     void mouseReleaseEvent(QMouseEvent* event);
     void mouseMoveEvent(QMouseEvent* event);
     void mouseDragEvent(QMouseEvent* event);
+    void leaveEvent(QEvent* event);
     void keyPressEvent(QKeyEvent* event);
 
 

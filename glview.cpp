@@ -45,6 +45,7 @@ GLView::GLView(QWidget *parent) :
     _messageTimer.setInterval(100);
 
     setMouseTracking(true);
+    this->setCursor(Qt::BlankCursor);
 
     _glViews.append(this); // keep track of all views
 
@@ -87,7 +88,10 @@ void GLView::paintGL()
     drawPaintStrokes();
 
     // draw brush overlay
-    drawBrush();
+    //bool cursorInWidget = this->rect().contains(this->mapFromGlobal(QCursor::pos()));
+    if (this->underMouse() || mouseMode != MouseMode::FREE) {
+        drawBrush();
+    }
 
 #if DEBUG_PAINT_LAYER
     drawPaintLayer();
@@ -417,6 +421,11 @@ void GLView::mouseDragEvent(QMouseEvent* event)
         _strokePoints.append(Point2(event->pos().x(), height()-event->pos().y()));
     }
 
+    update();
+}
+
+void GLView::leaveEvent(QEvent *event)
+{
     update();
 }
 
