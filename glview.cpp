@@ -45,7 +45,7 @@ GLView::GLView(QWidget *parent) :
     _messageTimer.setInterval(100);
 
     setMouseTracking(true);
-    this->setCursor(Qt::BlankCursor);
+    setCursor(Qt::CrossCursor);
 
     _glViews.append(this); // keep track of all views
 
@@ -208,7 +208,7 @@ void GLView::drawPaintStrokes()
     if (_strokePoints.size() == 0)
         return;
 
-    int brushRadius = settings()->brushSize() * 0.5f;
+    float brushRadius = settings()->brushSize() * 0.5f;
 
     paintFbo()->bind();
     glViewport(0,0,PAINT_FBO_WIDTH,PAINT_FBO_WIDTH);
