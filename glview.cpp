@@ -50,6 +50,7 @@ GLView::GLView(QWidget *parent) :
     _glViews.append(this); // keep track of all views
 
     _bakePaintLayer = false;
+    _paintLayerIsDirty = false;
 }
 
 QOpenGLTexture* brushTexture = 0;
@@ -204,6 +205,9 @@ void GLView::messageTimerUpdate()
 
 void GLView::drawPaintStrokes()
 {
+    if (_strokePoints.size() == 0)
+        return;
+
     int brushRadius = settings()->brushSize() * 0.5f;
 
     paintFbo()->bind();
@@ -244,6 +248,8 @@ void GLView::drawPaintStrokes()
 
     glViewport(0,0,width(),height());
     paintFbo()->release();
+
+    _paintLayerIsDirty = true;
 }
 
 void GLView::drawPaintLayer()
@@ -275,6 +281,14 @@ void GLView::setBusyMessage(QString message, int duration)
     _messageTimer.start();
 }
 
+// request a redraw of the scene including baking the current paint overlay
+void GLView::updateToBake()
+{
+    _bakePaintLayer = true;
+    update();
+}
+
+// called during rendering to bake the paint texture onto the target mesh textures
 void GLView::bakePaintLayer()
 {
     Scene* scene = Scene::activeScene();
@@ -349,6 +363,7 @@ void GLView::bakePaintLayer()
     }
 
     _bakePaintLayer = false;
+    _paintLayerIsDirty = false;
 }
 
 void GLView::mousePressEvent(QMouseEvent* event)
@@ -363,6 +378,10 @@ void GLView::mousePressEvent(QMouseEvent* event)
         mouseMode = MouseMode::CAMERA;
         activeMouseButton = event->button();
         _camera->mousePressed(_cameraScratch, event);
+
+        if (_paintLayerIsDirty) {
+            updateToBake(); // bake paint layer while aligned with target
+        }
     }
     else if (mouseMode == MouseMode::FREE && event->button() & Qt::LeftButton) {
         _strokePoints.append(Point2(event->pos().x(), height()-event->pos().y()));
@@ -433,8 +452,7 @@ void GLView::keyPressEvent(QKeyEvent *event)
 {
     if (mouseMode == MouseMode::FREE) {
         if (event->key() == Qt::Key_Space) {
-            _bakePaintLayer = true;
-            update();
+            updateToBake();
         }
     }
 

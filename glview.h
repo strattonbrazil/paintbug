@@ -65,8 +65,6 @@ protected:
     QGLShaderProgram*         _paintDebugShader;
 
     Camera* _camera;
-    QList<Point2>             _strokePoints;
-    bool                      _bakePaintLayer;
     CameraScratch             _cameraScratch;
 
     static QList<GLView*> _glViews;
@@ -77,12 +75,18 @@ protected:
     void setBusyMessage(QString message, int duration);
 
 private:
+    void                     updateToBake();
     void                     bakePaintLayer();
+
+    QList<Point2>             _strokePoints;
+    bool                      _bakePaintLayer;
+    bool                      _paintLayerIsDirty;
 
     QTimer _messageTimer;
     QString _busyMessage = "";
     QTime _messageFinished;
     QOpenGLDebugLogger* _logger;
+
 };
 
 #endif // GLVIEW_H
