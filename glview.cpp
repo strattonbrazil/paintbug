@@ -448,6 +448,15 @@ void GLView::leaveEvent(QEvent *event)
     update();
 }
 
+void GLView::resizeEvent(QResizeEvent *event)
+{
+    QOpenGLWidget::resizeEvent(event);
+
+    if (_paintLayerIsDirty) {
+        updateToBake(); // bake paint layer while aligned with target
+    }
+}
+
 void GLView::keyPressEvent(QKeyEvent *event)
 {
     if (mouseMode == MouseMode::FREE) {

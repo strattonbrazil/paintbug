@@ -40,6 +40,7 @@ public:
     void mouseMoveEvent(QMouseEvent* event);
     void mouseDragEvent(QMouseEvent* event);
     void leaveEvent(QEvent* event);
+    void resizeEvent(QResizeEvent *event);
     void keyPressEvent(QKeyEvent* event);
 
 
