@@ -12,6 +12,8 @@ BrushSizeButton::BrushSizeButton(QWidget *parent) : QToolButton(parent)
 {
     //connect(this, SIGNAL(released()), this, SLOT(onButtonClicked()));
     setCursor(Qt::SizeAllCursor);
+
+    connect(settings(), SIGNAL(brushSizeChanged()), this, SLOT(onBrushSizeChanged()));
 }
 
 void BrushSizeButton::paintEvent(QPaintEvent *event)
@@ -69,4 +71,9 @@ void BrushSizeButton::mouseMoveEvent(QMouseEvent *event)
 
         update();
     }
+}
+
+void BrushSizeButton::onBrushSizeChanged()
+{
+    update(); // redraw with new brush size
 }

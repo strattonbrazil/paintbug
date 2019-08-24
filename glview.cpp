@@ -47,9 +47,11 @@ GLView::GLView(QWidget *parent) :
     setMouseTracking(true);
     setCursor(Qt::CrossCursor);
 
+    connect(settings(), SIGNAL(brushSizeChanged()), this, SLOT(brushSizeChanged()));
+    connect(settings(), SIGNAL(brushColorChanged(QColor,QColor)), this, SLOT(brushColorChanged(QColor,QColor)));
+
     _glViews.append(this); // keep track of all views
 
-    _bakePaintLayer = false;
     _paintLayerIsDirty = false;
 }
 
@@ -97,11 +99,6 @@ void GLView::paintGL()
 #if DEBUG_PAINT_LAYER
     drawPaintLayer();
 #endif
-
-    if (_bakePaintLayer) {
-        bakePaintLayer();
-        setBusyMessage("baking", 400);
-    }
 
     painter.endNativePainting();
 
@@ -203,6 +200,18 @@ void GLView::messageTimerUpdate()
         _messageTimer.stop();
 }
 
+void GLView::brushSizeChanged()
+{
+    update(); // repaint render brush at new size
+}
+
+void GLView::brushColorChanged(QColor oldColor, QColor newColor)
+{
+    if (_paintLayerIsDirty) {
+        bakePaintLayer();
+    }
+}
+
 void GLView::drawPaintStrokes()
 {
     if (_strokePoints.size() == 0)
@@ -250,6 +259,7 @@ void GLView::drawPaintStrokes()
     paintFbo()->release();
 
     _paintLayerIsDirty = true;
+    _strokePoints.clear();
 }
 
 void GLView::drawPaintLayer()
@@ -281,16 +291,12 @@ void GLView::setBusyMessage(QString message, int duration)
     _messageTimer.start();
 }
 
-// request a redraw of the scene including baking the current paint overlay
-void GLView::updateToBake()
-{
-    _bakePaintLayer = true;
-    update();
-}
-
 // called during rendering to bake the paint texture onto the target mesh textures
 void GLView::bakePaintLayer()
 {
+    makeCurrent();
+    setBusyMessage("baking", 400);
+
     Scene* scene = Scene::activeScene();
 
     transferFbo()->bind();
@@ -351,8 +357,6 @@ void GLView::bakePaintLayer()
     glClear(GL_COLOR_BUFFER_BIT);
     paintFbo()->release();
 
-    _strokePoints.clear();
-
     glViewport(0, 0, width(), height());
 
     // redraw other views that may be using texture
@@ -362,7 +366,6 @@ void GLView::bakePaintLayer()
         }
     }
 
-    _bakePaintLayer = false;
     _paintLayerIsDirty = false;
 }
 
@@ -380,7 +383,7 @@ void GLView::mousePressEvent(QMouseEvent* event)
         _camera->mousePressed(_cameraScratch, event);
 
         if (_paintLayerIsDirty) {
-            updateToBake(); // bake paint layer while aligned with target
+            bakePaintLayer(); // bake paint layer while aligned with target
         }
     }
     else if (mouseMode == MouseMode::FREE && event->button() & Qt::LeftButton) {
@@ -453,7 +456,7 @@ void GLView::resizeEvent(QResizeEvent *event)
     QOpenGLWidget::resizeEvent(event);
 
     if (_paintLayerIsDirty) {
-        updateToBake(); // bake paint layer while aligned with target
+        bakePaintLayer(); // bake paint layer while aligned with target
     }
 }
 
@@ -461,7 +464,11 @@ void GLView::keyPressEvent(QKeyEvent *event)
 {
     if (mouseMode == MouseMode::FREE) {
         if (event->key() == Qt::Key_Space) {
-            updateToBake();
+            bakePaintLayer();
+        } else if (event->key() == Qt::Key_BracketLeft) {
+            settings()->setBrushSize(settings()->brushSize() - 10);
+        } else if (event->key() == Qt::Key_BracketRight) {
+            settings()->setBrushSize(settings()->brushSize() + 10);
         }
     }
 

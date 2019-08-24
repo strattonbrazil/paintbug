@@ -16,6 +16,7 @@ public:
 signals:
 
 public slots:
+    void onBrushSizeChanged();
 private:
     // used for drag events
     QPoint _dragStart;

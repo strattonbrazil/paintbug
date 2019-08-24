@@ -52,6 +52,8 @@ signals:
 
 public slots:
     void messageTimerUpdate();
+    void brushSizeChanged();
+    void brushColorChanged(QColor oldColor, QColor newColor);
 protected:
     // shared GL resources
     QOpenGLFramebufferObject* transferFbo();
@@ -76,11 +78,9 @@ protected:
     void setBusyMessage(QString message, int duration);
 
 private:
-    void                     updateToBake();
     void                     bakePaintLayer();
 
     QList<Point2>             _strokePoints;
-    bool                      _bakePaintLayer;
     bool                      _paintLayerIsDirty;
 
     QTimer _messageTimer;

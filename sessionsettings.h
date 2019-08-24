@@ -15,13 +15,14 @@ public:
     Q_PROPERTY(QColor brushColor MEMBER _brushColor READ brushColor WRITE setBrushColor)
     Q_PROPERTY(int brushSize MEMBER _brushSize READ brushSize WRITE setBrushSize)
 
-    QColor brushColor() { return _brushColor; }
-    void setBrushColor(QColor c) { _brushColor = c; }
+    QColor brushColor();
+    void setBrushColor(QColor c);
 
-    int brushSize() { return _brushSize; }
-    void setBrushSize(int s) { _brushSize = std::max(1, std::min(s, MAX_BRUSH_SIZE)); }
+    int brushSize();
+    void setBrushSize(int s);
 signals:
-
+    void brushColorChanged(QColor oldColor, QColor newColor);
+    void brushSizeChanged();
 public slots:
 private:
     QColor _brushColor;
