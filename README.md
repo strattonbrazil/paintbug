@@ -14,3 +14,4 @@ TODO
 * fix "blurring" that happens to paint buffer on brush drags
 * redirect key events to correct widget
 * prevent painting through the mesh
+* panning orthogaphic camera, keep mesh/mouse 1 to 1

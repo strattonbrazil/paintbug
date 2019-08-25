@@ -18,8 +18,12 @@ public:
     void keyReleaseEvent(QKeyEvent *event);
 public slots:
     void onImportMeshClicked(bool c);
+    void onImportRecentMeshClicked(QAction *event);
 private:
+    void importMesh(QString filePath);
     void showImportError();
+    QList<QString> getRecentMeshPaths();
+    void updateRecentMeshesMenu();
     Ui::MainWindow *ui;
 };
 

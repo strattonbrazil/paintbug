@@ -1,13 +1,5 @@
 #include "camera.h"
 
-//#include <iostream>
-//using namespace std;
-
-
-
-// used by panning
-
-
 PerspectiveCamera::PerspectiveCamera() : Camera()
 {
     resetLook();
@@ -21,44 +13,12 @@ PerspectiveCamera::PerspectiveCamera() : Camera()
     //moveType = MoveType::NOT_MOVING;
 }
 
-/*
-Point3 PerspectiveCamera::eye() { return _center; }
-Vector3 PerspectiveCamera::upDir() {
-    return _rotate.rotatedVector(Vector3(0,1,0));
-}
-Point3 PerspectiveCamera::lookat() { return _center + lookDir(); }
-Vector3 PerspectiveCamera::lookDir() { return _rotate.rotatedVector(Vector3(0,0,_distance)); }
-Vector3 PerspectiveCamera::leftDir() { return Vector3::crossProduct(upDir(), lookDir()).normalized(); }
-*/
-
 QMatrix4x4 PerspectiveCamera::getViewMatrix(int width, int height)
 {
     QMatrix4x4 m;
     m.lookAt(eye(), lookat(), upDir());
     return m;
 }
-
-/*
-QMatrix4x4 PerspectiveCamera::getProjMatrix(PerspectiveCamera* PerspectiveCamera, int width, int height, float dx, float dy)
-{
-    // taken from gluPerspective docs
-    float aspect = (float)width / (float)height;
-    float zNear = 0.1f;
-    float zFar = 1000.0f;
-
-    float top = tan(PerspectiveCamera->fov()*3.14159/360.0) * zNear;
-    //float top = tan(fov*0.5) * zNear;
-    float bottom = -top;
-
-    float left = aspect * bottom;
-    float right = aspect * top;
-
-    QMatrix4x4 m;
-    m.frustum(left+dx, right+dx, bottom+dy, top+dy, zNear, zFar);
-    //m.perspective(PerspectiveCamera->fov(), aspect, zNear, zFar);
-    return m;
-}
-*/
 
 QMatrix4x4 PerspectiveCamera::getProjMatrix(int width, int height)
 {
@@ -93,35 +53,6 @@ QMatrix4x4 PerspectiveCamera::getProjMatrix(int width, int height)
     //m.perspective(PerspectiveCamera->fov(), aspect, zNear, zFar);
     return m;
 }
-
-
-/*
-QMatrix4x4 PerspectiveCamera::getProjMatrix(PerspectiveCamera* PerspectiveCamera, int width, int height, float offsetX, float offsetY)
-{
-    // taken from gluPerspective docs
-    float aspect = (float)width / (float)height;
-    float zNear = 0.1f;
-    float zFar = 1000.0f;
-
-
-    double fov2, left, right, bottom, top;
-
-        fov2 = ((fovy * Math.PI) / 180.0) / 2.0;
-
-        top = near / (Math.cos(fov2) / Math.sin(fov2));
-        bottom = -top;
-
-        right = top * aspect;
-        left = -right;
-
-        accFrustum(gl, left, right, bottom, top, near, far, pixdx, pixdy, eyedx,
-            eyedy, focus);
-
-    QMatrix4x4 m;
-    m.perspective(PerspectiveCamera->fov(), aspect, zNear, zFar);
-    return m;
-}
-*/
 
 #define PI 3.14159265359
 RotatePair PerspectiveCamera::aim(Vector3 dir)
@@ -167,23 +98,6 @@ RotatePair PerspectiveCamera::aim(Vector3 dir)
     return pair;
 }
 
-/*
-void PerspectiveCamera::flipYZ(RtMatrix m)
-{
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            if (i == j) {
-                if (i == 0)
-                    m[i][j] = 1;
-                else
-                    m[i][j] = -1;
-            } else
-                m[i][j] = 0;
-        }
-    }
-}
-*/
-
 void PerspectiveCamera::mousePressed(CameraScratch &scratch, QMouseEvent *event)
 {
     scratch.pickX = event->pos().x();
@@ -196,10 +110,7 @@ void PerspectiveCamera::mousePressed(CameraScratch &scratch, QMouseEvent *event)
         scratch.moveType = MoveType::PANNING;
 
         scratch.origEye = eye();
-        //Vector3 f = (lookat() - eye()).normalized();
-        //Vector3 s = Vector3::crossProduct(f, upDir());
         scratch.origUp = upDir();
-        //origUp = Vector3::crossProduct(s, f);
         scratch.origLeft = leftDir();
     } else if (event->button() == Qt::RightButton) {
         scratch.moveType = MoveType::TRUCKING;
@@ -247,6 +158,8 @@ void PerspectiveCamera::mouseDragged(CameraScratch &scratch, QMouseEvent *event)
 
 OrthographicCamera::OrthographicCamera() : Camera()
 {
+    _center = Point3(0.5f, 0.5f, 1); // z is arbitrary
+    _fov = 0.6f;
 }
 
 // handles zoom and translation
@@ -261,10 +174,10 @@ QMatrix4x4 OrthographicCamera::getProjMatrix(int width, int height)
 {
     float aspect = (float)width / (float)height;
 
-    float left = 0.5f + -0.6f*aspect;
-    float right = 0.5f + 0.6f*aspect;
-    float bottom = -0.1f;
-    float top = 1.1f;
+    float left = _center.x() + -_fov*aspect;
+    float right = _center.x() + _fov*aspect;
+    float bottom = _center.y() - _fov;
+    float top = _center.y() + _fov;
 
     QMatrix4x4 m;
     m.setToIdentity();
@@ -274,15 +187,41 @@ QMatrix4x4 OrthographicCamera::getProjMatrix(int width, int height)
 
 void OrthographicCamera::mousePressed(CameraScratch &scratch, QMouseEvent *event)
 {
+    scratch.pickX = event->pos().x();
+    scratch.pickY = event->pos().y();
 
+    if (event->button() == Qt::MidButton) {
+        scratch.moveType = MoveType::PANNING;
+
+        scratch.origEye = eye();
+    } else if (event->button() == Qt::RightButton) {
+        scratch.moveType = MoveType::TRUCKING;
+    }
 }
 
 void OrthographicCamera::mouseReleased(CameraScratch &scratch, QMouseEvent *event)
 {
-
+    scratch.moveType = MoveType::NOT_MOVING;
 }
 
 void OrthographicCamera::mouseDragged(CameraScratch &scratch, QMouseEvent *event)
 {
+    int xDiff = scratch.pickX - event->pos().x();
+    int yDiff = scratch.pickY - event->pos().y();
 
+    if (scratch.moveType == MoveType::PANNING) {
+        float panScale = 0.05f;
+
+        Vector3 mUp = Vector3(1,0,0) * xDiff * panScale;
+        Vector3 mLeft = Vector3(0,1,0) * -1 * yDiff * panScale;
+
+        setCenter(eye() + mUp + mLeft);
+    } else if (scratch.moveType == MoveType::TRUCKING) {
+        float truckScale = 0.01f;
+
+        _fov = std::max(0.1f, _fov + truckScale * yDiff);
+    }
+
+    scratch.pickX = event->pos().x();
+    scratch.pickY = event->pos().y();
 }

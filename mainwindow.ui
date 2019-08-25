@@ -158,7 +158,13 @@
     <property name="title">
      <string>File</string>
     </property>
+    <widget class="QMenu" name="recentMeshMenu">
+     <property name="title">
+      <string>Import Recent Mesh</string>
+     </property>
+    </widget>
     <addaction name="importMeshAction"/>
+    <addaction name="recentMeshMenu"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -166,6 +172,11 @@
   <action name="importMeshAction">
    <property name="text">
     <string>Import Mesh</string>
+   </property>
+  </action>
+  <action name="actionempty">
+   <property name="text">
+    <string>empty</string>
    </property>
   </action>
  </widget>
