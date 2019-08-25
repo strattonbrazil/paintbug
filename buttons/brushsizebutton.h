@@ -1,15 +1,20 @@
 #ifndef BRUSHSIZEBUTTON_H
 #define BRUSHSIZEBUTTON_H
 
-#include <QToolButton>
 #include <QMouseEvent>
 
-class BrushSizeButton : public QToolButton
+#include "labeledtoolbutton.h"
+
+class BrushSizeButton : public LabeledToolButton
 {
     Q_OBJECT
 public:
     explicit BrushSizeButton(QWidget *parent = nullptr);
-    void paintEvent(QPaintEvent *event);
+
+    void drawBackground();
+    QString toolName();
+    QString toolValue();
+
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);

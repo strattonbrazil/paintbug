@@ -1,14 +1,16 @@
 #ifndef BRUSHCOLORBUTTON_H
 #define BRUSHCOLORBUTTON_H
 
-#include <QToolButton>
+#include "labeledtoolbutton.h"
 
-class BrushColorButton : public QToolButton
+class BrushColorButton : public LabeledToolButton
 {
     Q_OBJECT
 public:
     explicit BrushColorButton(QWidget *parent = nullptr);
-    void paintEvent(QPaintEvent *event);
+    void drawBackground();
+    QString toolName();
+    QString toolValue();
 signals:
 
 public slots:

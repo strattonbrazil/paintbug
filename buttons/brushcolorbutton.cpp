@@ -7,24 +7,32 @@
 
 #include "sessionsettings.h"
 
-BrushColorButton::BrushColorButton(QWidget *parent) : QToolButton(parent)
+BrushColorButton::BrushColorButton(QWidget *parent) : LabeledToolButton(parent)
 {
     connect(this, SIGNAL(released()), this, SLOT(onButtonClicked()));
 }
 
 
-void BrushColorButton::paintEvent(QPaintEvent *event)
+void BrushColorButton::drawBackground()
 {
-    QToolButton::paintEvent(event);
-
     QPainter p(this);
     QBrush b(settings()->brushColor());
     p.setBrush(b);
     QRect colorRect(rect());
-    int reduced = width() / 4;
-    QMargins m(reduced, 2, reduced, 2) ;
+    int reduced = 4;
+    QMargins m(reduced, reduced, reduced, reduced) ;
     colorRect = colorRect.marginsRemoved(m);
-    p.fillRect( colorRect, b );
+    p.fillRect(colorRect, b);
+}
+
+QString BrushColorButton::toolName()
+{
+    return "Brush Color";
+}
+
+QString BrushColorButton::toolValue()
+{
+    return "";
 }
 
 void BrushColorButton::onButtonClicked()
