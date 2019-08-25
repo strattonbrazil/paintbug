@@ -10,8 +10,8 @@ public:
     Scene();
     static Scene* activeScene();
     QHashIterator<QString,Mesh*> meshes() { return QHashIterator<QString,Mesh*>(_meshes); }
-private:
     void addMesh(QString name, Mesh* mesh);
+private:
     QHash<QString,Mesh*> _meshes;
 };
 

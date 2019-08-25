@@ -43,7 +43,7 @@ void PerspectiveView::glPass()
         if (!hasMeshTexture(mesh)) {
             std::cout << "creating mesh texture" << std::endl;
 
-            const int TEXTURE_SIZE = 32;
+            const int TEXTURE_SIZE = 256;
 
             transferFbo()->bind();
 

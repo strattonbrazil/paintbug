@@ -15,7 +15,11 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    void keyReleaseEvent(QKeyEvent *event);
+public slots:
+    void onImportMeshClicked(bool c);
 private:
+    void showImportError();
     Ui::MainWindow *ui;
 };
 

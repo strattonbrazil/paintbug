@@ -12,3 +12,5 @@ TODO
 * show correct paint color for overlay brush
 * use splines for line stamps
 * fix "blurring" that happens to paint buffer on brush drags
+* redirect key events to correct widget
+* prevent painting through the mesh
