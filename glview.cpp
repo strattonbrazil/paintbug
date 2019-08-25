@@ -49,6 +49,7 @@ GLView::GLView(QWidget *parent) :
 
     connect(settings(), SIGNAL(brushSizeChanged()), this, SLOT(brushSizeChanged()));
     connect(settings(), SIGNAL(brushColorChanged(QColor,QColor)), this, SLOT(brushColorChanged(QColor,QColor)));
+    connect(Scene::activeScene(), SIGNAL(meshAdded()), this, SLOT(onMeshAdded()));
 
     _glViews.append(this); // keep track of all views
 
@@ -210,6 +211,11 @@ void GLView::brushColorChanged(QColor oldColor, QColor newColor)
     if (_paintLayerIsDirty) {
         bakePaintLayer();
     }
+}
+
+void GLView::onMeshAdded()
+{
+    update();
 }
 
 void GLView::drawPaintStrokes()

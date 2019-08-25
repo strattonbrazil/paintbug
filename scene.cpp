@@ -10,14 +10,14 @@
 
 Scene* _activeScene = 0;
 
-Scene::Scene()
+Scene::Scene(QObject *parent): QObject(parent)
 {
 }
 
 Scene* Scene::activeScene()
 {
     if (_activeScene == 0) {
-        _activeScene = new Scene();
+        _activeScene = new Scene(0);
 
 
 #ifdef CREATE_TEST_QUAD
@@ -45,4 +45,5 @@ Scene* Scene::activeScene()
 void Scene::addMesh(QString name, Mesh *mesh)
 {
     _meshes.insert(name, mesh);
+    emit meshAdded();
 }

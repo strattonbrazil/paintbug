@@ -54,6 +54,7 @@ public slots:
     void messageTimerUpdate();
     void brushSizeChanged();
     void brushColorChanged(QColor oldColor, QColor newColor);
+    void onMeshAdded();
 protected:
     // shared GL resources
     QOpenGLFramebufferObject* transferFbo();
