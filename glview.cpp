@@ -74,6 +74,9 @@ void GLView::initializeGL()
 void GLView::resizeGL(int w, int h)
 {
     glViewport(0, 0, w, h);
+
+    _cameraScratch.viewWidth = w;
+    _cameraScratch.viewHeight = h;
 }
 
 void GLView::paintGL()

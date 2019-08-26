@@ -24,6 +24,8 @@ public:
     Point3 origEye;
     Vector3 origUp;
     Vector3 origLeft;
+    int viewWidth;
+    int viewHeight;
 };
 
 class Camera : public Transformable

@@ -210,10 +210,10 @@ void OrthographicCamera::mouseDragged(CameraScratch &scratch, QMouseEvent *event
     int yDiff = scratch.pickY - event->pos().y();
 
     if (scratch.moveType == MoveType::PANNING) {
-        float panScale = 0.05f;
+        float pixelsToWorld = 2.0f * _fov / scratch.viewHeight;
 
-        Vector3 mUp = Vector3(1,0,0) * xDiff * panScale;
-        Vector3 mLeft = Vector3(0,1,0) * -1 * yDiff * panScale;
+        Vector3 mUp = Vector3(1,0,0) * xDiff * pixelsToWorld;
+        Vector3 mLeft = Vector3(0,1,0) * -1 * yDiff * pixelsToWorld;
 
         setCenter(eye() + mUp + mLeft);
     } else if (scratch.moveType == MoveType::TRUCKING) {

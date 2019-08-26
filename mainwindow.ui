@@ -165,6 +165,8 @@
     </widget>
     <addaction name="importMeshAction"/>
     <addaction name="recentMeshMenu"/>
+    <addaction name="separator"/>
+    <addaction name="exportTexturesAction"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -174,9 +176,12 @@
     <string>Import Mesh</string>
    </property>
   </action>
-  <action name="actionempty">
+  <action name="exportTexturesAction">
    <property name="text">
-    <string>empty</string>
+    <string>Export Textures</string>
+   </property>
+   <property name="toolTip">
+    <string>Export Textures</string>
    </property>
   </action>
  </widget>
