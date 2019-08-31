@@ -14,6 +14,7 @@ public:
     void addTriangle(int i, int j, int k);
     int numTriangles();
 
+    QString _texturePath;
     QVector<Point3> _vertices;
     QVector<Point2> _uvs;
     QVector<int> _triangleIndices;

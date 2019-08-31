@@ -19,6 +19,7 @@ public:
 public slots:
     void onImportMeshClicked(bool c);
     void onImportRecentMeshClicked(QAction *event);
+    void onExportTexturesClicked(bool c);
 private:
     void importMesh(QString filePath);
     void showImportError();

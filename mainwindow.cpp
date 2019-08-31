@@ -1,9 +1,11 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "exporttexturesdialog.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QSettings>
+#include <QDialog>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -26,6 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->importMeshAction, SIGNAL(triggered(bool)), this, SLOT(onImportMeshClicked(bool)));
     connect(ui->recentMeshMenu, SIGNAL(triggered(QAction*)), this, SLOT(onImportRecentMeshClicked(QAction*)));
+    connect(ui->exportTexturesAction, SIGNAL(triggered(bool)), this, SLOT(onExportTexturesClicked(bool)));
 }
 
 MainWindow::~MainWindow()
@@ -50,6 +53,12 @@ void MainWindow::onImportRecentMeshClicked(QAction *event)
 {
     QString filePath = event->text();
     importMesh(filePath);
+}
+
+void MainWindow::onExportTexturesClicked(bool c)
+{
+    ExportTexturesDialog dialog;
+    dialog.exec();
 }
 
 void MainWindow::importMesh(QString filePath)

@@ -28,7 +28,10 @@ SOURCES += main.cpp\
     sessionsettings.cpp \
     buttons/brushsizebutton.cpp \
     buttons/brushcolorbutton.cpp \
-    buttons/labeledtoolbutton.cpp
+    buttons/labeledtoolbutton.cpp \
+    exporttexturesdialog.cpp \
+    exporttexturestablemodel.cpp \
+    texturepathitemdelegate.cpp
 
 HEADERS  += mainwindow.h \
             glview.h \
@@ -45,9 +48,13 @@ HEADERS  += mainwindow.h \
     sessionsettings.h \
     buttons/brushsizebutton.h \
     buttons/brushcolorbutton.h \
-    buttons/labeledtoolbutton.h
+    buttons/labeledtoolbutton.h \
+    exporttexturesdialog.h \
+    exporttexturestablemodel.h \
+    texturepathitemdelegate.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    exporttexturesdialog.ui
 
 OTHER_FILES += \
     README.md
