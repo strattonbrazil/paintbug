@@ -10,7 +10,7 @@ ExportTexturesTableModel::ExportTexturesTableModel(QObject *parent)
     while (meshes.hasNext()) {
         Mesh* mesh = meshes.next();
 
-        _bakeList.append(false);
+        _writeList.append(false);
         _meshList.append(mesh);
     }
 }
@@ -36,7 +36,7 @@ int ExportTexturesTableModel::rowCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    return _bakeList.count();
+    return _writeList.count();
 }
 
 int ExportTexturesTableModel::columnCount(const QModelIndex &parent) const
@@ -53,7 +53,7 @@ QVariant ExportTexturesTableModel::data(const QModelIndex &index, int role) cons
         return QVariant();
 
     if (role == Qt::CheckStateRole && index.column() == 0) {
-        if (_bakeList[index.row()])
+        if (_writeList[index.row()])
             return Qt::Checked;
         else
             return Qt::Unchecked;
@@ -76,7 +76,8 @@ bool ExportTexturesTableModel::setData(const QModelIndex &index, const QVariant 
         return false;
 
     if (role == Qt::CheckStateRole && index.column() == 0) {
-        _bakeList[index.row()] = value.toBool();
+        _writeList[index.row()] = value.toBool();
+        emit dataChanged(index, index);
         return true;
     } else if (index.column() == 2) {
         _meshList[index.row()]->setTexturePath(value.toString());
@@ -102,6 +103,11 @@ Qt::ItemFlags ExportTexturesTableModel::flags(const QModelIndex &index) const
     }
 
     return QAbstractTableModel::flags(index) | Qt::ItemIsEnabled;
+}
+
+bool ExportTexturesTableModel::exportTexture(const int meshIndex)
+{
+    return _writeList[meshIndex];
 }
 
 Mesh* ExportTexturesTableModel::mesh(const int meshIndex)

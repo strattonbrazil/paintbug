@@ -19,6 +19,7 @@ public:
     ~ExportTexturesDialog();
 public slots:
     void onExportClicked();
+    void onDataChanged(QModelIndex index1, QModelIndex index2, QVector<int> roles);
 private:
     Ui::ExportTexturesDialog *ui;
     ExportTexturesTableModel *_tableModel;

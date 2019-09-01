@@ -23,9 +23,10 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role);
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
+    bool exportTexture(const int meshIndex);
     Mesh* mesh(const int meshIndex);
 private:    
-    QVector<bool> _bakeList;
+    QVector<bool> _writeList;
     QVector<Mesh*> _meshList;
 
 };

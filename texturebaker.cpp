@@ -17,7 +17,7 @@ bool TextureBaker::writeTextureToFile(Mesh *mesh)
     }
 
     GLuint textureId = TextureCache::meshTextureId(mesh);
-    QString path = mesh->_texturePath;
+    QString path = mesh->texturePath();
     const int size = TextureCache::meshTextureSize(mesh);
     std::cout << "baking texture id (" + QString::number(textureId) + ") to " << path.toStdString() << std::endl;
 
