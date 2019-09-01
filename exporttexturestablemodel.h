@@ -26,7 +26,6 @@ public:
     Mesh* mesh(const int meshIndex);
 private:    
     QVector<bool> _bakeList;
-    QVector<QString> _meshNameList;
     QVector<Mesh*> _meshList;
 
 };

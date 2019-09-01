@@ -13,13 +13,19 @@ public:
     void addUV(float u, float v);
     void addTriangle(int i, int j, int k);
     int numTriangles();
+
     QString meshName() { return _meshName; }
     void setMeshName(QString name) { _meshName = name; }
 
-    QString _texturePath;
+    QString texturePath() { return _texturePath; }
+    void setTexturePath(QString path) { _texturePath = path; }
+
+    // TODO: make these private
     QVector<Point3> _vertices;
     QVector<Point2> _uvs;
     QVector<int> _triangleIndices;
+private:
+    QString _texturePath;
     QString _meshName;
 };
 

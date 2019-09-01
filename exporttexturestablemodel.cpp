@@ -11,7 +11,6 @@ ExportTexturesTableModel::ExportTexturesTableModel(QObject *parent)
         Mesh* mesh = meshes.next();
 
         _bakeList.append(false);
-        _meshNameList.append(mesh->meshName());
         _meshList.append(mesh);
     }
 }
@@ -62,9 +61,9 @@ QVariant ExportTexturesTableModel::data(const QModelIndex &index, int role) cons
 
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
         if (index.column() == 1) {
-            return _meshNameList[index.row()];
+            return _meshList[index.row()]->meshName();
         } else if (index.column() == 2) {
-            return _meshList[index.row()]->_texturePath;
+            return _meshList[index.row()]->texturePath();
         }
     }
 
@@ -80,7 +79,7 @@ bool ExportTexturesTableModel::setData(const QModelIndex &index, const QVariant 
         _bakeList[index.row()] = value.toBool();
         return true;
     } else if (index.column() == 2) {
-        _meshList[index.row()]->_texturePath = value.toString();
+        _meshList[index.row()]->setTexturePath(value.toString());
         emit dataChanged(index, index);
         return true;
     }
