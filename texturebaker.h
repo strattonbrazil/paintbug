@@ -5,6 +5,8 @@
 
 #include "mesh.h"
 
+// helper widget with OpenGL context for fetching and writing
+// textures to disk
 class TextureBaker : public QOpenGLWidget
 {
     Q_OBJECT

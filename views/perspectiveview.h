@@ -10,9 +10,7 @@ public:
     explicit PerspectiveView(QWidget *parent = 0);
 
     QString getViewLabel();
-    void glPass();
-    void painterPass(QPainter *painter);
-    MeshPropType meshBakingSpace() { return MeshPropType::GEOMETRY; }
+    MeshPropType meshVertexSpace() { return MeshPropType::GEOMETRY; }
 signals:
 
 public slots:

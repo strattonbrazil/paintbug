@@ -26,13 +26,14 @@ public:
     void initializeGL();
     void resizeGL(int w, int h);
     void paintGL();
+    void drawScene();
     void drawOutlinedText(QPainter* painter, int x, int y, QString text, QColor bgColor, QColor fgColor);
     void drawBrush();
 
-    virtual void glPass() = 0;
-    virtual void painterPass(QPainter* painter) = 0;
     virtual QString getViewLabel() = 0;
-    virtual MeshPropType meshBakingSpace() = 0; // returns the space the geometry is rendered in
+
+     // whether vertices are render with 3D positions or uvs
+    virtual MeshPropType meshVertexSpace() = 0;
 
     void mousePressEvent(QMouseEvent* event);
     void mouseDoubleClickEvent(QMouseEvent *);
