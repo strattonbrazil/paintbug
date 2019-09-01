@@ -2,6 +2,7 @@
 #include "ui_exporttexturesdialog.h"
 
 #include <QAbstractTableModel>
+#include <QProgressDialog>
 
 #include "scene.h"
 
@@ -30,8 +31,11 @@ ExportTexturesDialog::~ExportTexturesDialog()
 
 void ExportTexturesDialog::onExportClicked()
 {
+    ui->progressBar->setEnabled(true);
     for (int rowIndex = 0; rowIndex < _tableModel->rowCount(); rowIndex++) {
+        ui->progressBar->setValue(rowIndex * 100 / _tableModel->rowCount());
         Mesh *mesh = _tableModel->mesh(rowIndex);
         ui->textureBaker->writeTextureToFile(mesh);
     }
+    ui->progressBar->setValue(100);
 }

@@ -13,11 +13,14 @@ public:
     void addUV(float u, float v);
     void addTriangle(int i, int j, int k);
     int numTriangles();
+    QString meshName() { return _meshName; }
+    void setMeshName(QString name) { _meshName = name; }
 
     QString _texturePath;
     QVector<Point3> _vertices;
     QVector<Point2> _uvs;
     QVector<int> _triangleIndices;
+    QString _meshName;
 };
 
 #endif // MESH_H

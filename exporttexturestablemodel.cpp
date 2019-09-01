@@ -5,15 +5,13 @@
 ExportTexturesTableModel::ExportTexturesTableModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
-    QHashIterator<QString,Mesh*> meshes = Scene::activeScene()->meshes();
+    QVectorIterator<Mesh*> meshes = Scene::activeScene()->meshes();
 
     while (meshes.hasNext()) {
-        meshes.next();
-        QString meshName = meshes.key();
-        Mesh* mesh = meshes.value();
+        Mesh* mesh = meshes.next();
 
         _bakeList.append(false);
-        _meshNameList.append(meshName);
+        _meshNameList.append(mesh->meshName());
         _meshList.append(mesh);
     }
 }

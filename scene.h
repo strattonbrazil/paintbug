@@ -10,12 +10,12 @@ class Scene : public QObject
 public:
     Scene(QObject *parent);
     static Scene* activeScene();
-    QHashIterator<QString,Mesh*> meshes() { return QHashIterator<QString,Mesh*>(_meshes); }
-    void addMesh(QString name, Mesh* mesh);
+    QVectorIterator<Mesh*> meshes() { return QVectorIterator<Mesh*>(_meshes); }
+    void addMesh(Mesh* mesh);
 signals:
     void meshAdded();
 private:
-    QHash<QString,Mesh*> _meshes;
+    QVector<Mesh*> _meshes;
 };
 
 #endif // SCENE_H

@@ -141,10 +141,9 @@ void GLView::drawScene()
     Scene* scene = Scene::activeScene();
 
     // render each mesh
-    QHashIterator<QString,Mesh*> meshes = scene->meshes();
+    QVectorIterator<Mesh*> meshes = scene->meshes();
     while (meshes.hasNext()) {
-        meshes.next();
-        Mesh* mesh = meshes.value();
+        Mesh* mesh = meshes.next();
 
         // make sure a texture exists for this mesh
         if (!TextureCache::hasMeshTexture(mesh)) {
@@ -385,10 +384,9 @@ void GLView::bakePaintLayer()
 
     // render the meshes in UV space onto their texture using the paintFBO
     // render each mesh
-    QHashIterator<QString,Mesh*> meshes = scene->meshes();
+    QVectorIterator<Mesh*> meshes = scene->meshes();
     while (meshes.hasNext()) {
-        meshes.next();
-        Mesh* mesh = meshes.value();
+        Mesh* mesh = meshes.next();
 
         const int TARGET_TEXTURE_SIZE = TextureCache::meshTextureSize(mesh);
         glViewport(0, 0, TARGET_TEXTURE_SIZE, TARGET_TEXTURE_SIZE);

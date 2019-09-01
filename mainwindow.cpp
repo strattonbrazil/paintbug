@@ -110,8 +110,10 @@ void MainWindow::importMesh(QString filePath)
                                    mMesh->mFaces[faceIndex].mIndices[2]);
                 }
 
+                m->setMeshName(mMesh->mName.C_Str());
+
                 Scene* scene = Scene::activeScene();
-                scene->addMesh(mMesh->mName.C_Str(), m);
+                scene->addMesh(m);
             }
         }
 

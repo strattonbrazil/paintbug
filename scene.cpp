@@ -35,15 +35,18 @@ Scene* Scene::activeScene()
         m->addTriangle(0, 1, 2);
         m->addTriangle(0, 2, 3);
 
-        _activeScene->addMesh("quad", m);
+        m->setMeshName("quad");
+
+        _activeScene->addMesh(m);
 #endif
     }
 
     return _activeScene;
 }
 
-void Scene::addMesh(QString name, Mesh *mesh)
+void Scene::addMesh(Mesh *mesh)
 {
-    _meshes.insert(name, mesh);
+    std::cout << "adding mesh" << std::endl;
+    _meshes.append(mesh);
     emit meshAdded();
 }
