@@ -31,7 +31,9 @@ SOURCES += main.cpp\
     buttons/labeledtoolbutton.cpp \
     exporttexturesdialog.cpp \
     exporttexturestablemodel.cpp \
-    texturepathitemdelegate.cpp
+    texturepathitemdelegate.cpp \
+    texturecache.cpp \
+    texturebaker.cpp
 
 HEADERS  += mainwindow.h \
             glview.h \
@@ -51,7 +53,9 @@ HEADERS  += mainwindow.h \
     buttons/labeledtoolbutton.h \
     exporttexturesdialog.h \
     exporttexturestablemodel.h \
-    texturepathitemdelegate.h
+    texturepathitemdelegate.h \
+    texturecache.h \
+    texturebaker.h
 
 FORMS    += mainwindow.ui \
     exporttexturesdialog.ui

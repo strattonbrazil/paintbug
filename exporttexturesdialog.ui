@@ -49,6 +49,9 @@
        <number>0</number>
       </property>
       <item>
+       <widget class="TextureBaker" name="textureBaker"/>
+      </item>
+      <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -80,6 +83,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TextureBaker</class>
+   <extends>QOpenGLWidget</extends>
+   <header>texturebaker.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

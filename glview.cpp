@@ -6,6 +6,7 @@
 #include "scene.h"
 #include "gl_util.h"
 #include "sessionsettings.h"
+#include "texturecache.h"
 
 #define DEBUG_PAINT_LAYER 0
 
@@ -173,29 +174,6 @@ void GLView::drawBrush()
     //painter.drawImage(cursorP, foo);
 }
 
-static QHash<Mesh*,QPair<GLuint,GLuint>> meshTextures;
-
-bool GLView::hasMeshTexture(Mesh *mesh)
-{
-    return meshTextures.contains(mesh);
-}
-
-GLuint GLView::meshTextureId(Mesh *mesh)
-{
-    return meshTextures[mesh].first;
-}
-
-GLuint GLView::meshTextureSize(Mesh *mesh)
-{
-    return meshTextures[mesh].second;
-}
-
-void GLView::setMeshTexture(Mesh *mesh, GLuint id, GLuint size)
-{
-    meshTextures[mesh] = QPair<GLuint,GLuint>(id, size);
-}
-
-
 void GLView::messageTimerUpdate()
 {
     update();
@@ -324,13 +302,13 @@ void GLView::bakePaintLayer()
         meshes.next();
         Mesh* mesh = meshes.value();
 
-        const int TARGET_TEXTURE_SIZE = meshTextureSize(mesh);
+        const int TARGET_TEXTURE_SIZE = TextureCache::meshTextureSize(mesh);
         glViewport(0, 0, TARGET_TEXTURE_SIZE, TARGET_TEXTURE_SIZE);
 
         QMatrix4x4 objToWorld;
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, meshTextureId(mesh));
+        glBindTexture(GL_TEXTURE_2D, TextureCache::meshTextureId(mesh));
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, paintFbo()->texture());
         glActiveTexture(GL_TEXTURE0);
@@ -354,7 +332,7 @@ void GLView::bakePaintLayer()
 
         // copy bake back into mesh texture
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, meshTextureId(mesh));
+        glBindTexture(GL_TEXTURE_2D, TextureCache::meshTextureId(mesh));
         glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, TARGET_TEXTURE_SIZE, TARGET_TEXTURE_SIZE, 0);
     }
 

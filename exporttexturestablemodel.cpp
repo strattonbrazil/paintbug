@@ -106,3 +106,8 @@ Qt::ItemFlags ExportTexturesTableModel::flags(const QModelIndex &index) const
 
     return QAbstractTableModel::flags(index) | Qt::ItemIsEnabled;
 }
+
+Mesh* ExportTexturesTableModel::mesh(const int meshIndex)
+{
+    return _meshList[meshIndex];
+}

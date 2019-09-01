@@ -42,12 +42,6 @@ public:
     void leaveEvent(QEvent* event);
     void resizeEvent(QResizeEvent *event);
     void keyPressEvent(QKeyEvent* event);
-
-
-    bool hasMeshTexture(Mesh* mesh);
-    GLuint meshTextureId(Mesh* mesh);
-    GLuint meshTextureSize(Mesh* mesh);
-    void setMeshTexture(Mesh* mesh, GLuint id, GLuint size);
 signals:
 
 public slots:

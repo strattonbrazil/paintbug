@@ -31,6 +31,7 @@ ExportTexturesDialog::~ExportTexturesDialog()
 void ExportTexturesDialog::onExportClicked()
 {
     for (int rowIndex = 0; rowIndex < _tableModel->rowCount(); rowIndex++) {
-        //_tableModel->data(QModelIndex(row))
+        Mesh *mesh = _tableModel->mesh(rowIndex);
+        ui->textureBaker->writeTextureToFile(mesh);
     }
 }

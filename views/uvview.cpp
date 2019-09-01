@@ -2,6 +2,7 @@
 #include "scene.h"
 #include "gl_util.h"
 #include "sessionsettings.h"
+#include "texturecache.h"
 
 UVView::UVView(QWidget *parent) :
     GLView(parent)
@@ -56,7 +57,7 @@ void UVView::glPass()
         Mesh* mesh = meshes.value();
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, meshTextureId(mesh));
+        glBindTexture(GL_TEXTURE_2D, TextureCache::meshTextureId(mesh));
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, paintFbo()->texture());
         glActiveTexture(GL_TEXTURE0);

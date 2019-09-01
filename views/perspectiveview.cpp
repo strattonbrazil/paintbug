@@ -7,6 +7,7 @@
 #include "scene.h"
 #include "gl_util.h"
 #include "sessionsettings.h"
+#include "texturecache.h"
 
 PerspectiveView::PerspectiveView(QWidget *parent) :
     GLView(parent)
@@ -40,7 +41,7 @@ void PerspectiveView::glPass()
         Mesh* mesh = meshes.value();
 
         // make sure a texture exists for this mesh
-        if (!hasMeshTexture(mesh)) {
+        if (!TextureCache::hasMeshTexture(mesh)) {
             std::cout << "creating mesh texture" << std::endl;
 
             const int TEXTURE_SIZE = 256;
@@ -84,11 +85,11 @@ void PerspectiveView::glPass()
 
             glViewport(0, 0, width(), height());
 
-            setMeshTexture(mesh, textureId, TEXTURE_SIZE);
+            TextureCache::setMeshTexture(mesh, textureId, TEXTURE_SIZE);
         }
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, meshTextureId(mesh));
+        glBindTexture(GL_TEXTURE_2D, TextureCache::meshTextureId(mesh));
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, paintFbo()->texture());
         glActiveTexture(GL_TEXTURE0);
@@ -106,8 +107,6 @@ void PerspectiveView::glPass()
         renderMesh(mesh);
 
         _meshShader->release();
-
-
     }
 
     glMatrixMode(GL_PROJECTION);

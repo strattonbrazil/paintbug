@@ -14,3 +14,5 @@ TODO
 * fix "blurring" that happens to paint buffer on brush drags
 * redirect key events to correct widget
 * prevent painting through the mesh
+* clean up texture/mesh ownership
+* fix OpenGL context sharing across app

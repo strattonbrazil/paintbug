@@ -23,6 +23,7 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role);
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
+    Mesh* mesh(const int meshIndex);
 private:    
     QVector<bool> _bakeList;
     QVector<QString> _meshNameList;
