@@ -10,8 +10,7 @@ class TextureCache {
 public:
     static bool hasMeshTexture(Mesh* mesh);
     static GLuint meshTextureId(Mesh* mesh);
-    static GLuint meshTextureSize(Mesh* mesh);
-    static void setMeshTexture(Mesh* mesh, GLuint id, GLuint size);
+    static void setMeshTexture(Mesh* mesh, GLuint id);
 };
 
 #endif // TEXTURECACHE_H

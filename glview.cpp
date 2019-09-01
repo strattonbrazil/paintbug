@@ -190,7 +190,8 @@ void GLView::drawScene()
 
             glViewport(0, 0, width(), height());
 
-            TextureCache::setMeshTexture(mesh, textureId, TEXTURE_SIZE);
+            mesh->setTextureSize(TEXTURE_SIZE);
+            TextureCache::setMeshTexture(mesh, textureId);
         }
 
         glActiveTexture(GL_TEXTURE0);
@@ -388,7 +389,7 @@ void GLView::bakePaintLayer()
     while (meshes.hasNext()) {
         Mesh* mesh = meshes.next();
 
-        const int TARGET_TEXTURE_SIZE = TextureCache::meshTextureSize(mesh);
+        const int TARGET_TEXTURE_SIZE = mesh->textureSize();
         glViewport(0, 0, TARGET_TEXTURE_SIZE, TARGET_TEXTURE_SIZE);
 
         QMatrix4x4 objToWorld;

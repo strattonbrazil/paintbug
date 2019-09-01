@@ -17,6 +17,9 @@ public:
     QString meshName() { return _meshName; }
     void setMeshName(QString name) { _meshName = name; }
 
+    int textureSize() { return _textureSize; }
+    void setTextureSize(int size) { _textureSize = size; }
+
     QString texturePath() { return _texturePath; }
     void setTexturePath(QString path) { _texturePath = path; }
 
@@ -25,6 +28,7 @@ public:
     QVector<Point2> _uvs;
     QVector<int> _triangleIndices;
 private:
+    int     _textureSize;
     QString _texturePath;
     QString _meshName;
 };

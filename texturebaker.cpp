@@ -18,8 +18,7 @@ bool TextureBaker::writeTextureToFile(Mesh *mesh)
 
     GLuint textureId = TextureCache::meshTextureId(mesh);
     QString path = mesh->texturePath();
-    const int size = TextureCache::meshTextureSize(mesh);
-    std::cout << "baking texture id (" + QString::number(textureId) + ") to " << path.toStdString() << std::endl;
+    const int size = mesh->textureSize();
 
     const int NUM_COLOR_CHANNELS = 3;
     GLubyte data[size*size*NUM_COLOR_CHANNELS];

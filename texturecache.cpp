@@ -3,7 +3,8 @@
 #include <QOpenGLContext>
 #include <iostream>
 
-static QHash<Mesh*,QPair<GLuint,GLuint>> meshTextures;
+// maps Mesh instances to OpenGL texture handles
+static QHash<Mesh*,GLuint> meshTextures;
 
 // prints a warning if the previous GL context and the current context
 // aren't shared
@@ -27,17 +28,11 @@ bool TextureCache::hasMeshTexture(Mesh *mesh)
 GLuint TextureCache::meshTextureId(Mesh *mesh)
 {
     checkContext();
-    return meshTextures[mesh].first;
+    return meshTextures[mesh];
 }
 
-GLuint TextureCache::meshTextureSize(Mesh *mesh)
+void TextureCache::setMeshTexture(Mesh *mesh, GLuint id)
 {
     checkContext();
-    return meshTextures[mesh].second;
-}
-
-void TextureCache::setMeshTexture(Mesh *mesh, GLuint id, GLuint size)
-{
-    checkContext();
-    meshTextures[mesh] = QPair<GLuint,GLuint>(id, size);
+    meshTextures[mesh] = id;
 }
