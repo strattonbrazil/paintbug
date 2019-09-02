@@ -21,7 +21,6 @@ SOURCES += main.cpp\
     util.cpp \
     shader.cpp \
     mesh.cpp \
-    scene.cpp \
     views/perspectiveview.cpp \
     views/uvview.cpp \
     gl_util.cpp \
@@ -33,7 +32,8 @@ SOURCES += main.cpp\
     exporttexturestablemodel.cpp \
     texturepathitemdelegate.cpp \
     texturecache.cpp \
-    texturebaker.cpp
+    texturebaker.cpp \
+    project.cpp
 
 HEADERS  += mainwindow.h \
             glview.h \
@@ -42,7 +42,6 @@ HEADERS  += mainwindow.h \
     util.h \
     shader.h \
     mesh.h \
-    scene.h \
     views/perspectiveview.h \
     views/uvview.h \
     gl_util.h \
@@ -55,7 +54,8 @@ HEADERS  += mainwindow.h \
     exporttexturestablemodel.h \
     texturepathitemdelegate.h \
     texturecache.h \
-    texturebaker.h
+    texturebaker.h \
+    project.h
 
 FORMS    += mainwindow.ui \
     exporttexturesdialog.ui

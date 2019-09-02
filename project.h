@@ -1,15 +1,15 @@
-#ifndef SCENE_H
-#define SCENE_H
+#ifndef PROJECT_H
+#define PROJECT_H
 
 #include <QHash>
 #include "mesh.h"
 
-class Scene : public QObject
+class Project : public QObject
 {
     Q_OBJECT
 public:
-    Scene(QObject *parent);
-    static Scene* activeScene();
+    Project(QObject *parent);
+    static Project* activeProject();
     QVectorIterator<Mesh*> meshes() { return QVectorIterator<Mesh*>(_meshes); }
     void addMesh(Mesh* mesh);
 signals:
@@ -18,4 +18,4 @@ private:
     QVector<Mesh*> _meshes;
 };
 
-#endif // SCENE_H
+#endif // PROJECT_H

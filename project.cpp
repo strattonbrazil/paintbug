@@ -1,4 +1,4 @@
-#include "scene.h"
+#include "project.h"
 
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure
@@ -8,16 +8,16 @@
 
 #define CREATE_TEST_QUAD 0
 
-Scene* _activeScene = 0;
+Project* _activeProject = 0;
 
-Scene::Scene(QObject *parent): QObject(parent)
+Project::Project(QObject *parent): QObject(parent)
 {
 }
 
-Scene* Scene::activeScene()
+Project* Project::activeProject()
 {
-    if (_activeScene == 0) {
-        _activeScene = new Scene(0);
+    if (_activeProject == 0) {
+        _activeProject = new Project(0);
 
 
 #ifdef CREATE_TEST_QUAD
@@ -37,14 +37,14 @@ Scene* Scene::activeScene()
 
         m->setMeshName("quad");
 
-        _activeScene->addMesh(m);
+        _activeProject->addMesh(m);
 #endif
     }
 
-    return _activeScene;
+    return _activeProject;
 }
 
-void Scene::addMesh(Mesh *mesh)
+void Project::addMesh(Mesh *mesh)
 {
     std::cout << "adding mesh" << std::endl;
     _meshes.append(mesh);

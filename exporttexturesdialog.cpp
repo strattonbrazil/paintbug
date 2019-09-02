@@ -4,7 +4,7 @@
 #include <QAbstractTableModel>
 #include <QProgressDialog>
 
-#include "scene.h"
+#include "project.h"
 
 ExportTexturesDialog::ExportTexturesDialog(QWidget *parent) :
     QDialog(parent),
@@ -12,7 +12,7 @@ ExportTexturesDialog::ExportTexturesDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    _tableModel = new ExportTexturesTableModel(Scene::activeScene());
+    _tableModel = new ExportTexturesTableModel(Project::activeProject());
     _texturePathDelegate = new TexturePathItemDelegate(0);
 
     ui->texturesTable->setModel(_tableModel);

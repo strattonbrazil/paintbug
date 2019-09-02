@@ -1,5 +1,5 @@
 #include "uvview.h"
-#include "scene.h"
+#include "project.h"
 #include "gl_util.h"
 #include "sessionsettings.h"
 #include "texturecache.h"

@@ -3,7 +3,7 @@
 #include <QOpenGLTexture>
 #include <iostream>
 
-#include "scene.h"
+#include "project.h"
 #include "gl_util.h"
 #include "sessionsettings.h"
 #include "texturecache.h"
@@ -50,7 +50,7 @@ GLView::GLView(QWidget *parent) :
 
     connect(settings(), SIGNAL(brushSizeChanged()), this, SLOT(brushSizeChanged()));
     connect(settings(), SIGNAL(brushColorChanged(QColor,QColor)), this, SLOT(brushColorChanged(QColor,QColor)));
-    connect(Scene::activeScene(), SIGNAL(meshAdded()), this, SLOT(onMeshAdded()));
+    connect(Project::activeProject(), SIGNAL(meshAdded()), this, SLOT(onMeshAdded()));
 
     _glViews.append(this); // keep track of all views
 
@@ -140,10 +140,10 @@ void GLView::drawScene()
 
     QMatrix4x4 objToWorld;
 
-    Scene* scene = Scene::activeScene();
+    Project* project = Project::activeProject();
 
     // render each mesh
-    QVectorIterator<Mesh*> meshes = scene->meshes();
+    QVectorIterator<Mesh*> meshes = project->meshes();
     while (meshes.hasNext()) {
         Mesh* mesh = meshes.next();
 
@@ -376,7 +376,7 @@ void GLView::bakePaintLayer()
     makeCurrent();
     setBusyMessage("baking", 400);
 
-    Scene* scene = Scene::activeScene();
+    Project* project = Project::activeProject();
 
     transferFbo()->bind();
 
@@ -389,7 +389,7 @@ void GLView::bakePaintLayer()
 
     // render the meshes in UV space onto their texture using the paintFBO
     // render each mesh
-    QVectorIterator<Mesh*> meshes = scene->meshes();
+    QVectorIterator<Mesh*> meshes = project->meshes();
     while (meshes.hasNext()) {
         Mesh* mesh = meshes.next();
 

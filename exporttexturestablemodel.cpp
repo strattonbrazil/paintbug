@@ -1,11 +1,11 @@
 #include "exporttexturestablemodel.h"
 
-#include "scene.h"
+#include "project.h"
 
 ExportTexturesTableModel::ExportTexturesTableModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
-    QVectorIterator<Mesh*> meshes = Scene::activeScene()->meshes();
+    QVectorIterator<Mesh*> meshes = Project::activeProject()->meshes();
 
     while (meshes.hasNext()) {
         Mesh* mesh = meshes.next();

@@ -11,7 +11,7 @@
 #include <assimp/postprocess.h>
 #include <iostream>
 
-#include "scene.h"
+#include "project.h"
 
 #define RECENT_MESHES_SETTING "recent/meshes"
 #define MAX_RECENT_PATHS 10
@@ -112,8 +112,8 @@ void MainWindow::importMesh(QString filePath)
 
                 m->setMeshName(mMesh->mName.C_Str());
 
-                Scene* scene = Scene::activeScene();
-                scene->addMesh(m);
+                Project* project = Project::activeProject();
+                project->addMesh(m);
             }
         }
 
