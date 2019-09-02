@@ -55,7 +55,8 @@ HEADERS  += mainwindow.h \
     texturepathitemdelegate.h \
     texturecache.h \
     texturebaker.h \
-    project.h
+    project.h \
+    QOpenGLMutableTexture.h
 
 FORMS    += mainwindow.ui \
     exporttexturesdialog.ui

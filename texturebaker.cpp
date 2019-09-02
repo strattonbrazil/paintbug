@@ -16,7 +16,6 @@ bool TextureBaker::writeTextureToFile(Mesh *mesh)
         return false;
     }
 
-    GLuint textureId = TextureCache::meshTextureId(mesh);
     QString path = mesh->texturePath();
     const int size = mesh->textureSize();
 
@@ -24,7 +23,8 @@ bool TextureBaker::writeTextureToFile(Mesh *mesh)
     GLubyte data[size*size*NUM_COLOR_CHANNELS];
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureId);
+    TextureCache::meshTextureId(mesh)->bind();
+//    glBindTexture(GL_TEXTURE_2D, textureId);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 
     QImage out(data, size, size, QImage::Format_RGB888);

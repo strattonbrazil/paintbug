@@ -4,7 +4,7 @@
 #include <iostream>
 
 // maps Mesh instances to OpenGL texture handles
-static QHash<Mesh*,GLuint> meshTextures;
+static QHash<Mesh*,QOpenGLTexture*> meshTextures;
 
 // prints a warning if the previous GL context and the current context
 // aren't shared
@@ -25,14 +25,17 @@ bool TextureCache::hasMeshTexture(Mesh *mesh)
     return meshTextures.contains(mesh);
 }
 
-GLuint TextureCache::meshTextureId(Mesh *mesh)
+QOpenGLTexture *TextureCache::meshTextureId(Mesh *mesh)
 {
     checkContext();
     return meshTextures[mesh];
 }
 
-void TextureCache::setMeshTexture(Mesh *mesh, GLuint id)
+void TextureCache::setMeshTexture(Mesh *mesh, QOpenGLTexture *texture)
 {
     checkContext();
-    meshTextures[mesh] = id;
+    if (meshTextures.contains(mesh)) { // clean up previous texture
+        delete meshTextures[mesh];
+    }
+    meshTextures[mesh] = texture;
 }

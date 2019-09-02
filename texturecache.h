@@ -3,14 +3,14 @@
 
 #include "mesh.h"
 
-#include <GL/gl.h>
+#include <QOpenGLTexture>
 
 // global access to shared texture resources
 class TextureCache {
 public:
     static bool hasMeshTexture(Mesh* mesh);
-    static GLuint meshTextureId(Mesh* mesh);
-    static void setMeshTexture(Mesh* mesh, GLuint id);
+    static QOpenGLTexture *meshTextureId(Mesh* mesh);
+    static void setMeshTexture(Mesh* mesh, QOpenGLTexture *texture);
 };
 
 #endif // TEXTURECACHE_H

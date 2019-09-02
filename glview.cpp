@@ -7,6 +7,7 @@
 #include "gl_util.h"
 #include "sessionsettings.h"
 #include "texturecache.h"
+#include "QOpenGLMutableTexture.h"
 
 #define DEBUG_PAINT_LAYER 0
 
@@ -153,6 +154,18 @@ void GLView::drawScene()
 
             const int TEXTURE_SIZE = 256;
 
+            QImage renderImage(TEXTURE_SIZE, TEXTURE_SIZE, QImage::Format_RGBA8888);
+            QPainter texturePainter(&renderImage);
+            texturePainter.fillRect(0, 0, TEXTURE_SIZE, TEXTURE_SIZE, QColor(128,128,128));
+            texturePainter.fillRect(TEXTURE_SIZE * 0.25f, TEXTURE_SIZE * 0.25f, TEXTURE_SIZE * 0.5f, TEXTURE_SIZE * 0.5f, QColor(204,204,204));
+            QOpenGLTexture *texture = new QOpenGLMutableTexture(renderImage);
+
+            //QOpenGLTexture *texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+            //texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);
+            //texture->setData(renderImage);
+
+
+/*
             transferFbo()->bind();
 
             GLuint textureId;
@@ -160,7 +173,7 @@ void GLView::drawScene()
 
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, textureId);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TEXTURE_SIZE, TEXTURE_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TEXTURE_SIZE, TEXTURE_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
             glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
             glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -191,13 +204,14 @@ void GLView::drawScene()
             transferFbo()->release();
 
             glViewport(0, 0, width(), height());
-
+*/
             mesh->setTextureSize(TEXTURE_SIZE);
-            TextureCache::setMeshTexture(mesh, textureId);
+            TextureCache::setMeshTexture(mesh, texture);
         }
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, TextureCache::meshTextureId(mesh));
+        TextureCache::meshTextureId(mesh)->bind();
+        //glBindTexture(GL_TEXTURE_2D, TextureCache::meshTextureId(mesh));
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, paintFbo()->texture());
         glActiveTexture(GL_TEXTURE0);
@@ -399,7 +413,8 @@ void GLView::bakePaintLayer()
         QMatrix4x4 objToWorld;
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, TextureCache::meshTextureId(mesh));
+        TextureCache::meshTextureId(mesh)->bind();
+        //glBindTexture(GL_TEXTURE_2D, TextureCache::meshTextureId(mesh));
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, paintFbo()->texture());
         glActiveTexture(GL_TEXTURE0);
@@ -423,8 +438,12 @@ void GLView::bakePaintLayer()
 
         // copy bake back into mesh texture
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, TextureCache::meshTextureId(mesh));
-        glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, TARGET_TEXTURE_SIZE, TARGET_TEXTURE_SIZE, 0);
+        QOpenGLTexture *meshTexture = TextureCache::meshTextureId(mesh);
+        meshTexture->bind();
+
+        //glBindTexture(GL_TEXTURE_2D, TextureCache::meshTextureId(mesh));
+        //glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, TARGET_TEXTURE_SIZE, TARGET_TEXTURE_SIZE, 0);
+        glCopyTexImage2D(meshTexture->target(), 0, meshTexture->format(), 0, 0, TARGET_TEXTURE_SIZE, TARGET_TEXTURE_SIZE, 0);
     }
 
     transferFbo()->release();
