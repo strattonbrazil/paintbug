@@ -129,6 +129,8 @@ void GLView::paintGL()
 
 void GLView::drawScene()
 {
+    glEnable(GL_DEPTH_TEST);
+
     glClearColor(.2,.2,.2,0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -215,6 +217,8 @@ void GLView::drawScene()
 
         _meshShader->release();
     }
+
+    glDisable(GL_DEPTH_TEST);
 }
 
 void GLView::drawOutlinedText(QPainter* painter, int x, int y, QString text, QColor bgColor, QColor fgColor)
