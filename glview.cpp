@@ -51,6 +51,7 @@ GLView::GLView(QWidget *parent) :
     connect(settings(), SIGNAL(brushSizeChanged()), this, SLOT(brushSizeChanged()));
     connect(settings(), SIGNAL(brushColorChanged(QColor,QColor)), this, SLOT(brushColorChanged(QColor,QColor)));
     connect(Project::activeProject(), SIGNAL(meshAdded()), this, SLOT(onMeshAdded()));
+    connect(Project::activeProject(), SIGNAL(meshesRemoved(QList<Mesh*>)), this, SLOT(onMeshesRemoved(QList<Mesh*>)));
 
     _glViews.append(this); // keep track of all views
 
@@ -138,14 +139,14 @@ void GLView::drawScene()
     QMatrix4x4 cameraViewM = _camera->getViewMatrix(width(), height());
     QMatrix4x4 cameraProjViewM = cameraProjM * cameraViewM;
 
-    QMatrix4x4 objToWorld;
-
     Project* project = Project::activeProject();
 
     // render each mesh
     QVectorIterator<Mesh*> meshes = project->meshes();
     while (meshes.hasNext()) {
         Mesh* mesh = meshes.next();
+
+        QMatrix4x4 objToWorld;
 
         // make sure a texture exists for this mesh
         if (!TextureCache::hasMeshTexture(mesh)) {
@@ -288,6 +289,21 @@ void GLView::brushColorChanged(QColor oldColor, QColor newColor)
 
 void GLView::onMeshAdded()
 {
+    update();
+}
+
+void GLView::onMeshesRemoved(QList<Mesh*> removed)
+{
+    makeCurrent();
+
+    // release textures of removed meshes
+    foreach (Mesh* removedMesh, removed) {
+        if (TextureCache::hasMeshTexture(removedMesh)) {
+            GLuint unusedTexture = TextureCache::removeMeshTexture(removedMesh);
+            glGenTextures(1, &unusedTexture);
+        }
+    }
+
     update();
 }
 

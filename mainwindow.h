@@ -17,6 +17,7 @@ public:
 
     void keyReleaseEvent(QKeyEvent *event);
 public slots:
+    void onNewProjectClicked(bool c);
     void onImportMeshClicked(bool c);
     void onImportRecentMeshClicked(QAction *event);
     void onExportTexturesClicked(bool c);

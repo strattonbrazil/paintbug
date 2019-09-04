@@ -36,3 +36,9 @@ void TextureCache::setMeshTexture(Mesh *mesh, GLuint id)
     checkContext();
     meshTextures[mesh] = id;
 }
+
+GLuint TextureCache::removeMeshTexture(Mesh* mesh)
+{
+    checkContext();
+    return meshTextures[mesh];
+}

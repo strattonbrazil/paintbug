@@ -46,7 +46,13 @@ Project* Project::activeProject()
 
 void Project::addMesh(Mesh *mesh)
 {
-    std::cout << "adding mesh" << std::endl;
     _meshes.append(mesh);
     emit meshAdded();
+}
+
+void Project::reset()
+{
+    QList<Mesh*> removedMeshes = _meshes.toList();
+    _meshes.clear();
+    emit meshesRemoved(removedMeshes);
 }

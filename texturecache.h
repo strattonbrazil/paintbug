@@ -11,6 +11,7 @@ public:
     static bool hasMeshTexture(Mesh* mesh);
     static GLuint meshTextureId(Mesh* mesh);
     static void setMeshTexture(Mesh* mesh, GLuint id);
+    static GLuint removeMeshTexture(Mesh* mesh);
 };
 
 #endif // TEXTURECACHE_H

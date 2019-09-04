@@ -26,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     updateRecentMeshesMenu();
 
+    connect(ui->newProjectAction, SIGNAL(triggered(bool)), this, SLOT(onNewProjectClicked(bool)));
     connect(ui->importMeshAction, SIGNAL(triggered(bool)), this, SLOT(onImportMeshClicked(bool)));
     connect(ui->recentMeshMenu, SIGNAL(triggered(QAction*)), this, SLOT(onImportRecentMeshClicked(QAction*)));
     connect(ui->exportTexturesAction, SIGNAL(triggered(bool)), this, SLOT(onExportTexturesClicked(bool)));
@@ -39,6 +40,11 @@ MainWindow::~MainWindow()
 void MainWindow::keyReleaseEvent(QKeyEvent *event)
 {
     // TODO: handle keys that bubble up
+}
+
+void MainWindow::onNewProjectClicked(bool c)
+{
+    Project::activeProject()->reset();
 }
 
 void MainWindow::onImportMeshClicked(bool c)

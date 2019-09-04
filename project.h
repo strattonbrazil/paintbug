@@ -12,8 +12,10 @@ public:
     static Project* activeProject();
     QVectorIterator<Mesh*> meshes() { return QVectorIterator<Mesh*>(_meshes); }
     void addMesh(Mesh* mesh);
+    void reset();
 signals:
     void meshAdded();
+    void meshesRemoved(QList<Mesh*> removed);
 private:
     QVector<Mesh*> _meshes;
 };
