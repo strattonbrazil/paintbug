@@ -6,6 +6,9 @@
 #include <QMessageBox>
 #include <QSettings>
 #include <QDialog>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -27,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     updateRecentMeshesMenu();
 
     connect(ui->newProjectAction, SIGNAL(triggered(bool)), this, SLOT(onNewProjectClicked(bool)));
+    connect(ui->saveProjectAction, SIGNAL(triggered(bool)), this, SLOT(onSaveProjectClicked(bool)));
     connect(ui->importMeshAction, SIGNAL(triggered(bool)), this, SLOT(onImportMeshClicked(bool)));
     connect(ui->recentMeshMenu, SIGNAL(triggered(QAction*)), this, SLOT(onImportRecentMeshClicked(QAction*)));
     connect(ui->exportTexturesAction, SIGNAL(triggered(bool)), this, SLOT(onExportTexturesClicked(bool)));
@@ -45,6 +49,35 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
 void MainWindow::onNewProjectClicked(bool c)
 {
     Project::activeProject()->reset();
+}
+
+void MainWindow::onSaveProjectClicked(bool c)
+{
+    QString filePath = QFileDialog::getSaveFileName(this, "Save Project", QString(), "Projects (*.pbug)");
+    if (!filePath.isNull()) {
+        if (!filePath.endsWith(".pbug")) {
+            filePath = filePath + ".pbug";
+        }
+
+
+        QJsonObject rootObj;
+        rootObj.insert("file_version", "1");
+
+        Project *project = Project::activeProject();
+
+        QJsonArray meshArr;
+        QVectorIterator<Mesh*> meshes = project->meshes();
+        while (meshes.hasNext()) {
+            Mesh *mesh = meshes.next();
+            meshArr.append(mesh->serialize());
+        }
+        rootObj.insert("meshes", meshArr);
+
+        QJsonDocument doc;
+        doc.setObject(rootObj);
+
+        std::cout << doc.toJson().toStdString() << std::endl;
+    }
 }
 
 void MainWindow::onImportMeshClicked(bool c)
@@ -117,6 +150,7 @@ void MainWindow::importMesh(QString filePath)
                 }
 
                 m->setMeshName(mMesh->mName.C_Str());
+                m->setGeometryPath(filePath);
 
                 Project* project = Project::activeProject();
                 project->addMesh(m);
