@@ -331,9 +331,7 @@ void GLView::drawPaintStrokes()
 
     brushTexture->bind();
 
-    glBegin(GL_QUADS);
-    glColor4f(1,1,1,1);
-    foreach (Point2 p, _strokePoints) {
+    auto drawPoint = [brushRadius](Point2 p) { // helper func
         glTexCoord2f(0, 0);
         glVertex2f(-brushRadius + p.x(), -brushRadius + p.y());
         glTexCoord2f(1, 0);
@@ -342,6 +340,23 @@ void GLView::drawPaintStrokes()
         glVertex2f(brushRadius + p.x(), brushRadius + p.y());
         glTexCoord2f(0, 1);
         glVertex2f(-brushRadius + p.x(), brushRadius + p.y());
+    };
+
+    Point2 prevPoint;
+    glBegin(GL_QUADS);
+    glColor4f(1,1,1,1);
+    foreach (Point2 p, _strokePoints) {
+        drawPoint(p);
+        if (!prevPoint.isNull()) { // draw points in between
+            float distance = prevPoint.distanceToPoint(p);
+            for (int i = 1; i < distance; i++) {
+                float a = i / distance;
+                float b = 1 - a;
+                Point2 tweenPoint = prevPoint * a + p * b;
+                drawPoint(tweenPoint);
+            }
+        }
+        prevPoint = p;
     }
     glEnd();
 
@@ -354,7 +369,6 @@ void GLView::drawPaintStrokes()
     paintFbo()->release();
 
     _paintLayerIsDirty = true;
-    _strokePoints.clear();
 }
 
 void GLView::drawPaintLayer()
@@ -484,6 +498,7 @@ void GLView::mousePressEvent(QMouseEvent* event)
         _strokePoints.append(Point2(event->pos().x(), height()-event->pos().y()));
         mouseMode = MouseMode::TOOL;
         activeMouseButton = event->button();
+        _strokePoints.append(Point2(event->pos().x(), height()-event->pos().y()));
     }
 }
 
@@ -505,6 +520,7 @@ void GLView::mouseReleaseEvent(QMouseEvent* event)
         activeMouseButton = -1;
     }
     else if (mouseMode == MouseMode::TOOL && event->button() == activeMouseButton) {
+        _strokePoints.clear();
         mouseMode = MouseMode::FREE;
         activeMouseButton = -1;
     }

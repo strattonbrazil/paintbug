@@ -10,9 +10,9 @@ TODO
 * remove floating gl* references, use inheritance instead
 * optimization: create paint FBO only when needed
 * show correct paint color for overlay brush
-* use splines for line stamps
 * fix "blurring" that happens to paint buffer on brush drags
 * redirect key events to correct widget
 * prevent painting through the mesh
 * clean up texture/mesh ownership
 * fix OpenGL context sharing across app
+* swap Point2 typedef for QPointF
