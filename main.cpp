@@ -3,8 +3,6 @@
 
 #include <QSurfaceFormat>
 
-#include <GL/freeglut.h>
-
 int main(int argc, char *argv[])
 {
     QSurfaceFormat format;
@@ -21,9 +19,6 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     MainWindow w;
     w.show();
-
-
-    glutInit(&argc, argv);
 
     return a.exec();
 }

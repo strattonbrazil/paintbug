@@ -24,7 +24,7 @@ void BrushSizeButton::drawBackground()
     // draw sample brush
     float brushSizeRatio = brushSize / (float)MAX_BRUSH_SIZE;
     int halfW = width() * 0.5f - 5;
-    p.drawEllipse(QPoint(width()*0.5f, height()*0.5f), halfW * brushSizeRatio, halfW * brushSizeRatio);
+    p.drawEllipse(QPointF(width()*0.5f, height()*0.5f), halfW * brushSizeRatio, halfW * brushSizeRatio);
 }
 
 QString BrushSizeButton::toolName()

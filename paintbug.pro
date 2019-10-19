@@ -10,7 +10,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = paintbug
 TEMPLATE = app
-LIBS += -lglut -lassimp -lGLEW
+LIBS += -lassimp
 CONFIG += c++11
 
 SOURCES += main.cpp\
