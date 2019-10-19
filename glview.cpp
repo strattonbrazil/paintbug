@@ -500,6 +500,8 @@ void GLView::mousePressEvent(QMouseEvent* event)
         activeMouseButton = event->button();
         _strokePoints.append(Point2(event->pos().x(), height()-event->pos().y()));
     }
+
+    update();
 }
 
 void GLView::mouseDoubleClickEvent(QMouseEvent *event)
