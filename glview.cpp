@@ -28,11 +28,11 @@ QOpenGLFramebufferObject* GLView::transferFbo() {
 QOpenGLFramebufferObject* GLView::paintFbo() {
     if (!_paintFbo) {
         QOpenGLFramebufferObjectFormat format;
-        format.setInternalTextureFormat(GL_RG32F);
+        format.setInternalTextureFormat(GL_R32F);
         _paintFbo = new QOpenGLFramebufferObject(PAINT_FBO_WIDTH, PAINT_FBO_WIDTH, format);
 
         _paintFbo->bind();
-        glClearColor(0,1,0,0); // red is paint intensity, green is depth
+        glClearColor(0,0,0,0); // red is paint intensity
         glClear(GL_COLOR_BUFFER_BIT);
         _paintFbo->release();
     }
