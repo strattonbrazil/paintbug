@@ -16,3 +16,4 @@ TODO
 * clean up texture/mesh ownership
 * fix OpenGL context sharing across app
 * swap Point2 typedef for QPointF
+* add anti-aliasing to viewport

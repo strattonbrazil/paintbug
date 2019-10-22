@@ -18,6 +18,19 @@ int mouseMode = MouseMode::FREE;
 int activeMouseButton = -1;
 QList<GLView*> GLView::_glViews;
 
+QOpenGLFramebufferObject* GLView::drawFbo(const int width, const int height) {
+    // destroy FBO if wrong size for viewport
+    if (_drawFbo != 0 && (_drawFbo->width() != width || _drawFbo->height() != height)) {
+        delete _drawFbo;
+        _drawFbo = 0;
+    }
+
+    if (!_drawFbo) {
+        _drawFbo = new QOpenGLFramebufferObject(width, height, QOpenGLFramebufferObject::Depth);
+    }
+    return _drawFbo;
+}
+
 QOpenGLFramebufferObject* GLView::transferFbo() {
     if (!_transferFbo) {
         _transferFbo = new QOpenGLFramebufferObject(PAINT_FBO_WIDTH, PAINT_FBO_WIDTH);
@@ -132,6 +145,11 @@ void GLView::drawScene()
 {
     glEnable(GL_DEPTH_TEST);
 
+    QOpenGLFramebufferObject* drawTarget = drawFbo(width(), height());
+    if (!drawTarget->bind()) {
+        std::cerr << "unable to bind draw target" << std::endl;
+    }
+
     glClearColor(.2,.2,.2,0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -220,6 +238,37 @@ void GLView::drawScene()
     }
 
     glDisable(GL_DEPTH_TEST);
+
+    if (!drawTarget->release()) {
+        std::cerr << "unable to release draw target" << std::endl;
+    }
+
+    // draw scene texture to the screen
+    drawTarget->texture();
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, 1, 0, 1, -1, 1);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, drawTarget->texture());
+
+    glColor3f(1,1,1);
+    glBegin(GL_QUADS);
+    {
+        glTexCoord2f(0, 0);
+        glVertex2f(0, 0);
+        glTexCoord2f(1, 0);
+        glVertex2f(1, 0);
+        glTexCoord2f(1, 1);
+        glVertex2f(1, 1);
+        glTexCoord2f(0, 1);
+        glVertex2f(0, 1);
+    }
+    glEnd();
+
+    glDisable(GL_TEXTURE_2D);
 }
 
 void GLView::drawOutlinedText(QPainter* painter, int x, int y, QString text, QColor bgColor, QColor fgColor)
