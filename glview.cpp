@@ -18,15 +18,9 @@ int mouseMode = MouseMode::FREE;
 int activeMouseButton = -1;
 QList<GLView*> GLView::_glViews;
 
-QOpenGLFramebufferObject* GLView::drawFbo(const int width, const int height) {
-    // destroy FBO if wrong size for viewport
-    if (_drawFbo != 0 && (_drawFbo->width() != width || _drawFbo->height() != height)) {
-        delete _drawFbo;
-        _drawFbo = 0;
-    }
-
+QOpenGLFramebufferObject* GLView::drawFbo() {
     if (!_drawFbo) {
-        _drawFbo = new QOpenGLFramebufferObject(width, height, QOpenGLFramebufferObject::Depth);
+        _drawFbo = new QOpenGLFramebufferObject(PAINT_FBO_WIDTH, PAINT_FBO_WIDTH, QOpenGLFramebufferObject::Depth);
     }
     return _drawFbo;
 }
@@ -83,7 +77,7 @@ void GLView::initializeGL()
     _logger = new QOpenGLDebugLogger(this);
     _logger->initialize();
 
-    brushTexture = new QOpenGLTexture(QImage(QString(":/brushes/resources/brushes/brush1.png")));
+    brushTexture = new QOpenGLTexture(QImage(QString(":/main/resources/brushes/brush1.png")));
 }
 
 void GLView::resizeGL(int w, int h)
@@ -145,7 +139,7 @@ void GLView::drawScene()
 {
     glEnable(GL_DEPTH_TEST);
 
-    QOpenGLFramebufferObject* drawTarget = drawFbo(width(), height());
+    QOpenGLFramebufferObject* drawTarget = drawFbo();
     if (!drawTarget->bind()) {
         std::cerr << "unable to bind draw target" << std::endl;
     }
@@ -247,7 +241,7 @@ void GLView::drawScene()
     drawTarget->texture();
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0, 1, 0, 1, -1, 1);
+    glOrtho(0, width(), 0, height(), -1, 1);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
@@ -260,11 +254,11 @@ void GLView::drawScene()
         glTexCoord2f(0, 0);
         glVertex2f(0, 0);
         glTexCoord2f(1, 0);
-        glVertex2f(1, 0);
+        glVertex2f(PAINT_FBO_WIDTH, 0);
         glTexCoord2f(1, 1);
-        glVertex2f(1, 1);
+        glVertex2f(PAINT_FBO_WIDTH, PAINT_FBO_WIDTH);
         glTexCoord2f(0, 1);
-        glVertex2f(0, 1);
+        glVertex2f(0, PAINT_FBO_WIDTH);
     }
     glEnd();
 

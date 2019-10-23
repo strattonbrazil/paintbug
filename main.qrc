@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/main">
+        <file>resources/brushes/brush1.png</file>
+        <file>resources/shaders/mesh.vert</file>
+        <file>resources/shaders/mesh.frag</file>
+        <file>resources/shaders/bake.vert</file>
+        <file>resources/shaders/bake.frag</file>
+        <file>resources/shaders/paint_debug.vert</file>
+        <file>resources/shaders/paint_debug.frag</file>
+    </qresource>
+</RCC>

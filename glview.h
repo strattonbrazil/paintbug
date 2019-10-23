@@ -53,7 +53,7 @@ public slots:
     void onMeshesRemoved(QList<Mesh*> removed);
 protected:
     // shared GL resources
-    QOpenGLFramebufferObject* drawFbo(const int width, const int height);
+    QOpenGLFramebufferObject* drawFbo();
     QOpenGLFramebufferObject* transferFbo();
     QOpenGLFramebufferObject* paintFbo();
 

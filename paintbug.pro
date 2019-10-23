@@ -64,4 +64,6 @@ OTHER_FILES += \
     README.md
 
 RESOURCES += \
-    brushes.qrc
+    main.qrc
+
+DISTFILES +=
