@@ -6,7 +6,7 @@
 #include "project.h"
 #include "gl_util.h"
 #include "sessionsettings.h"
-#include "texturecache.h"
+#include "glcache.h"
 
 #define DEBUG_PAINT_LAYER 0
 
@@ -161,7 +161,7 @@ void GLView::drawScene()
         QMatrix4x4 objToWorld;
 
         // make sure a texture exists for this mesh
-        if (!TextureCache::hasMeshTexture(mesh)) {
+        if (!GLCache::hasMeshTexture(mesh)) {
             std::cout << "creating mesh texture" << std::endl;
 
             const int TEXTURE_SIZE = 256;
@@ -206,11 +206,11 @@ void GLView::drawScene()
             glViewport(0, 0, width(), height());
 
             mesh->setTextureSize(TEXTURE_SIZE);
-            TextureCache::setMeshTexture(mesh, textureId);
+            GLCache::setMeshTexture(mesh, textureId);
         }
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, TextureCache::meshTextureId(mesh));
+        glBindTexture(GL_TEXTURE_2D, GLCache::meshTextureId(mesh));
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, paintFbo()->texture());
         glActiveTexture(GL_TEXTURE0);
@@ -225,8 +225,32 @@ void GLView::drawScene()
         _meshShader->setUniformValue("meshTexture", 0);
         _meshShader->setUniformValue("paintTexture", 1);
 
-        // draw mesh in UV space
-        renderMesh(mesh, MeshPropType::UV, meshVertexSpace());
+        QOpenGLBuffer *vbo = GLCache::meshVertexBuffer(mesh);
+        QOpenGLBuffer *uvbo = GLCache::meshUVBuffer(mesh);
+        QOpenGLBuffer *ibo = GLCache::meshIndexBuffer(mesh);
+        QOpenGLVertexArrayObject *vao = GLCache::meshVertexArray(mesh);
+
+        QOpenGLBuffer* positionBuffer;
+        if (meshVertexSpace() == MeshPropType::UV) {
+            positionBuffer = uvbo;
+        } else {
+            positionBuffer = vbo;
+        }
+
+        vao->bind();
+        positionBuffer->bind();
+        _meshShader->enableAttributeArray("position");
+        _meshShader->setAttributeBuffer("position", GL_FLOAT, 0, 3, 0);
+        positionBuffer->release();
+        uvbo->bind();
+        _meshShader->enableAttributeArray("in_uvs");
+        _meshShader->setAttributeBuffer("in_uvs", GL_FLOAT, 0, 3, 0);
+        uvbo->release();
+
+        ibo->bind();
+        glDrawElements(GL_TRIANGLES, mesh->_triangleIndices.count(), GL_UNSIGNED_INT, 0);
+        ibo->release();
+        vao->release();
 
         _meshShader->release();
     }
@@ -341,8 +365,8 @@ void GLView::onMeshesRemoved(QList<Mesh*> removed)
 
     // release textures of removed meshes
     foreach (Mesh* removedMesh, removed) {
-        if (TextureCache::hasMeshTexture(removedMesh)) {
-            GLuint unusedTexture = TextureCache::removeMeshTexture(removedMesh);
+        if (GLCache::hasMeshTexture(removedMesh)) {
+            GLuint unusedTexture = GLCache::removeMeshTexture(removedMesh);
             glGenTextures(1, &unusedTexture);
         }
     }
@@ -472,9 +496,11 @@ void GLView::bakePaintLayer()
         QMatrix4x4 objToWorld;
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, TextureCache::meshTextureId(mesh));
+        glBindTexture(GL_TEXTURE_2D, GLCache::meshTextureId(mesh));
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, paintFbo()->texture());
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, drawFbo()->texture());
         glActiveTexture(GL_TEXTURE0);
 
         QVector2D targetScale = QVector2D(width() / (float)PAINT_FBO_WIDTH, height() / (float)PAINT_FBO_WIDTH);
@@ -487,6 +513,7 @@ void GLView::bakePaintLayer()
         _bakeShader->setUniformValue("cameraPV", cameraProjViewM);
         _bakeShader->setUniformValue("meshTexture", 0);
         _bakeShader->setUniformValue("paintTexture", 1);
+        _bakeShader->setUniformValue("drawTexture", 2);
         _bakeShader->setUniformValue("targetScale", targetScale);
         _bakeShader->setUniformValue("brushColor", brushColor.redF(), brushColor.greenF(), brushColor.blueF(), 1);
 
@@ -496,7 +523,7 @@ void GLView::bakePaintLayer()
 
         // copy bake back into mesh texture
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, TextureCache::meshTextureId(mesh));
+        glBindTexture(GL_TEXTURE_2D, GLCache::meshTextureId(mesh));
         glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, TARGET_TEXTURE_SIZE, TARGET_TEXTURE_SIZE, 0);
     }
 

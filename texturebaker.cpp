@@ -1,6 +1,6 @@
 #include "texturebaker.h"
 
-#include "texturecache.h"
+#include "glcache.h"
 
 TextureBaker::TextureBaker(QWidget *parent) : QOpenGLWidget(parent)
 {
@@ -12,11 +12,11 @@ bool TextureBaker::writeTextureToFile(Mesh *mesh)
 {
     makeCurrent();
 
-    if (!TextureCache::hasMeshTexture(mesh)) {
+    if (!GLCache::hasMeshTexture(mesh)) {
         return false;
     }
 
-    GLuint textureId = TextureCache::meshTextureId(mesh);
+    GLuint textureId = GLCache::meshTextureId(mesh);
     QString path = mesh->texturePath();
     const int size = mesh->textureSize();
 

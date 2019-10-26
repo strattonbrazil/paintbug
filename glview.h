@@ -7,6 +7,8 @@
 #include <QTimer>
 #include <QTime>
 #include <QOpenGLDebugLogger>
+#include <QOpenGLBuffer>
+#include <QOpenGLVertexArrayObject>
 
 #include "transformable.h"
 #include "camera.h"

@@ -7,7 +7,7 @@
 #include "project.h"
 #include "gl_util.h"
 #include "sessionsettings.h"
-#include "texturecache.h"
+#include "glcache.h"
 
 PerspectiveView::PerspectiveView(QWidget *parent) :
     GLView(parent)

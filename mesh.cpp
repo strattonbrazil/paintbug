@@ -14,7 +14,7 @@ void Mesh::addVertex(float x, float y, float z)
 
 void Mesh::addUV(float u, float v)
 {
-    _uvs.append(Point2(u, v));
+    _uvs.append(Point3(u, v, 0));
 }
 
 void Mesh::addTriangle(int i, int j, int k)
@@ -74,8 +74,8 @@ QJsonArray Mesh::serializeVertices()
 QJsonArray Mesh::serializeUvs()
 {
     QJsonArray uvs;
-    foreach (Point2 uv, _uvs) {
-        uvs.append(vec2ToJson(uv));
+    foreach (Point3 uv, _uvs) {
+        uvs.append(vec3ToJson(uv));
     }
     return uvs;
 }

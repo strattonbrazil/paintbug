@@ -2,9 +2,11 @@
 
 uniform mat4 objToWorld;
 uniform mat4 cameraPV;
-varying vec2 uv;
+attribute vec3 position;
+attribute vec2 in_uvs;
+varying vec2 uvs;
 
 void main() {
-  uv = gl_MultiTexCoord0.xy;
-  gl_Position = cameraPV * objToWorld * gl_Vertex;
+  uvs = in_uvs;
+  gl_Position = cameraPV * objToWorld * vec4(position, 1);
 }

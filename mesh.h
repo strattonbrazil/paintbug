@@ -30,8 +30,8 @@ public:
 
     // TODO: make these private
     QVector<Point3> _vertices;
-    QVector<Point2> _uvs;
-    QVector<int> _triangleIndices;
+    QVector<Point3> _uvs;
+    QVector<unsigned int> _triangleIndices;
 private:
     int     _textureSize = 0;
     QString _texturePath = "";

@@ -12,7 +12,7 @@ void renderMesh(Mesh* mesh, MeshPropType texCoordType, MeshPropType vertCoordTyp
             for (int j = 0; j < 3; j++) {
                 const unsigned int vertIndex = mesh->_triangleIndices[i*3+j];
                 Point3 vert = mesh->_vertices[vertIndex];
-                Point2 uv = mesh->_uvs[vertIndex];
+                Point3 uv = mesh->_uvs[vertIndex];
 
                 if (texCoordType == MeshPropType::UV)
                     glTexCoord2f(uv.x(), uv.y());
