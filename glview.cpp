@@ -4,7 +4,6 @@
 #include <iostream>
 
 #include "project.h"
-#include "gl_util.h"
 #include "sessionsettings.h"
 #include "glcache.h"
 
@@ -452,7 +451,18 @@ void GLView::drawPaintLayer()
 
     glBindTexture(GL_TEXTURE_2D, paintFbo()->texture());
 
-    drawTexturedRect(0, 0, PAINT_FBO_WIDTH, PAINT_FBO_WIDTH);
+    glBegin(GL_QUADS);
+    {
+        glTexCoord2f(0,0);
+        glVertex2f(0,0);
+        glTexCoord2f(1,0);
+        glVertex2f(PAINT_FBO_WIDTH,0);
+        glTexCoord2f(1,1);
+        glVertex2f(PAINT_FBO_WIDTH,PAINT_FBO_WIDTH);
+        glTexCoord2f(0,1);
+        glVertex2f(0,PAINT_FBO_WIDTH);
+    }
+    glEnd();
 
     glDisable(GL_BLEND);
     _paintDebugShader->release();
@@ -517,7 +527,32 @@ void GLView::bakePaintLayer()
         _bakeShader->setUniformValue("targetScale", targetScale);
         _bakeShader->setUniformValue("brushColor", brushColor.redF(), brushColor.greenF(), brushColor.blueF(), 1);
 
-        renderMesh(mesh, meshVertexSpace(), MeshPropType::UV);
+        QOpenGLBuffer *vbo = GLCache::meshVertexBuffer(mesh);
+        QOpenGLBuffer *uvbo = GLCache::meshUVBuffer(mesh);
+        QOpenGLBuffer *ibo = GLCache::meshIndexBuffer(mesh);
+        QOpenGLVertexArrayObject *vao = GLCache::meshVertexArray(mesh);
+
+        QOpenGLBuffer* textureBuffer;
+        if (meshVertexSpace() == MeshPropType::UV) {
+            textureBuffer = uvbo;
+        } else {
+            textureBuffer = vbo;
+        }
+
+        vao->bind();
+        uvbo->bind();
+        _meshShader->enableAttributeArray("position");
+        _meshShader->setAttributeBuffer("position", GL_FLOAT, 0, 3, 0);
+        uvbo->release();
+        textureBuffer->bind();
+        _meshShader->enableAttributeArray("in_uvs");
+        _meshShader->setAttributeBuffer("in_uvs", GL_FLOAT, 0, 3, 0);
+        textureBuffer->release();
+
+        ibo->bind();
+        glDrawElements(GL_TRIANGLES, mesh->_triangleIndices.count(), GL_UNSIGNED_INT, 0);
+        ibo->release();
+        vao->release();
 
         _bakeShader->release();
 

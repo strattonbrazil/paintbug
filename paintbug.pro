@@ -23,7 +23,6 @@ SOURCES += main.cpp\
     mesh.cpp \
     views/perspectiveview.cpp \
     views/uvview.cpp \
-    gl_util.cpp \
     sessionsettings.cpp \
     buttons/brushsizebutton.cpp \
     buttons/brushcolorbutton.cpp \
@@ -44,7 +43,6 @@ HEADERS  += mainwindow.h \
     mesh.h \
     views/perspectiveview.h \
     views/uvview.h \
-    gl_util.h \
     constants.h \
     sessionsettings.h \
     buttons/brushsizebutton.h \

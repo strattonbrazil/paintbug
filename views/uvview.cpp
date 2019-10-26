@@ -1,6 +1,5 @@
 #include "uvview.h"
 #include "project.h"
-#include "gl_util.h"
 #include "sessionsettings.h"
 #include "glcache.h"
 
