@@ -1,6 +1,8 @@
 #include "glview.h"
 
 #include <QOpenGLTexture>
+#include <QOpenGLFunctions>
+#include <QOpenGLExtraFunctions>
 #include <iostream>
 
 #include "project.h"
@@ -20,6 +22,9 @@ QList<GLView*> GLView::_glViews;
 QOpenGLFramebufferObject* GLView::drawFbo() {
     if (!_drawFbo) {
         _drawFbo = new QOpenGLFramebufferObject(PAINT_FBO_WIDTH, PAINT_FBO_WIDTH, QOpenGLFramebufferObject::Depth);
+
+        // for some reason GL_RGBA32UI doesn't work, maybe because of https://bugreports.qt.io/browse/QTBUG-58312
+        _drawFbo->addColorAttachment(PAINT_FBO_WIDTH, PAINT_FBO_WIDTH, GL_RGBA32F);
     }
     return _drawFbo;
 }
@@ -77,6 +82,10 @@ void GLView::initializeGL()
     _logger->initialize();
 
     brushTexture = new QOpenGLTexture(QImage(QString(":/main/resources/brushes/brush1.png")));
+
+    if (!QOpenGLContext::currentContext()->functions()->hasOpenGLFeature(QOpenGLFunctions::MultipleRenderTargets)) {
+        qDebug("Multiple render targets not supported");
+    }
 }
 
 void GLView::resizeGL(int w, int h)
@@ -245,6 +254,10 @@ void GLView::drawScene()
         _meshShader->enableAttributeArray("in_uvs");
         _meshShader->setAttributeBuffer("in_uvs", GL_FLOAT, 0, 3, 0);
         uvbo->release();
+
+        QOpenGLExtraFunctions* f = QOpenGLContext::currentContext()->extraFunctions();
+        GLenum bufs[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+        f->glDrawBuffers(2, bufs);
 
         ibo->bind();
         glDrawElements(GL_TRIANGLES, mesh->_triangleIndices.count(), GL_UNSIGNED_INT, 0);
@@ -510,7 +523,7 @@ void GLView::bakePaintLayer()
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, paintFbo()->texture());
         glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, drawFbo()->texture());
+        glBindTexture(GL_TEXTURE_2D, drawFbo()->textures()[1]); // want the color attachment with primitive ids
         glActiveTexture(GL_TEXTURE0);
 
         QVector2D targetScale = QVector2D(width() / (float)PAINT_FBO_WIDTH, height() / (float)PAINT_FBO_WIDTH);

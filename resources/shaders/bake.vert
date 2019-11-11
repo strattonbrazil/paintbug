@@ -1,13 +1,12 @@
-#version 120
+#version 330
 
 uniform mat4 orthoPV;
 uniform mat4 cameraPV;
 uniform mat4 objToWorld;
-attribute vec3 position;
-attribute vec3 in_uvs;
-
-varying vec2 meshUv;
-varying vec4 cameraPos;
+in vec3 position;
+in vec3 in_uvs;
+out vec2 meshUv;
+out vec4 cameraPos;
 
 void main() {
   meshUv = position.xy;

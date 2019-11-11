@@ -1,10 +1,10 @@
-#version 120
+#version 330
 
-varying vec3 worldPos;
-varying vec2 uv;
 uniform vec3 cameraPos;
 uniform sampler2D meshTexture;
 uniform sampler2D paintTexture;
+in vec3 worldPos;
+in vec2 uv;
 
 void main() {
     float intensity = texture2D(paintTexture, uv).r;

@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
 {
     QSurfaceFormat format;
     format.setMajorVersion(4);
-    format.setMinorVersion(2);
+    format.setMinorVersion(4);
     format.setProfile(QSurfaceFormat::CompatibilityProfile);
     format.setOption(QSurfaceFormat::DebugContext);
     format.setSamples(0);

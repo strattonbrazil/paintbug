@@ -1,10 +1,10 @@
-#version 120
+#version 330
 
 uniform mat4 objToWorld;
 uniform mat4 cameraPV;
-attribute vec3 position;
-attribute vec2 in_uvs;
-varying vec2 uvs;
+in vec3 position;
+in vec2 in_uvs;
+out vec2 uvs;
 
 void main() {
   uvs = in_uvs;
