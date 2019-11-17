@@ -19,5 +19,5 @@ void main() {
     meshWithPaintColor = vec4(finalColor, 0);
 
     // TODO: switch to single int32 after new render target
-    primitiveId = vec4(1, 0, 0, gl_PrimitiveID + 0.5); // using .5 so I can safely round down
+    primitiveId = vec4(1, 0, gl_FragCoord.z, gl_PrimitiveID + 0.5); // using .5 so I can safely round down
 }
