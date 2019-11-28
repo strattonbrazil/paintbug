@@ -32,7 +32,8 @@ SOURCES += main.cpp\
     texturepathitemdelegate.cpp \
     texturebaker.cpp \
     project.cpp \
-    glcache.cpp
+    glcache.cpp \
+    scenetablemodel.cpp
 
 HEADERS  += mainwindow.h \
             glview.h \
@@ -53,7 +54,8 @@ HEADERS  += mainwindow.h \
     texturepathitemdelegate.h \
     texturebaker.h \
     project.h \
-    glcache.h
+    glcache.h \
+    scenetablemodel.h
 
 FORMS    += mainwindow.ui \
     exporttexturesdialog.ui

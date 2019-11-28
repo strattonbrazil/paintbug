@@ -56,3 +56,20 @@ void Project::reset()
     _meshes.clear();
     emit meshesRemoved(removedMeshes);
 }
+
+bool Project::meshVisible(Mesh *mesh)
+{
+    if (!_meshVisibilities.contains(mesh)) {
+        _meshVisibilities[mesh] = true;
+    }
+
+    return _meshVisibilities[mesh];
+}
+
+void Project::setMeshVisibility(Mesh *mesh, bool visible)
+{
+    _meshVisibilities[mesh] = visible;
+    QList<Mesh*> altered;
+    altered.append(mesh);
+    emit meshesAltered(altered);
+}

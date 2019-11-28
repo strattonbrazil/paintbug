@@ -63,6 +63,7 @@ GLView::GLView(QWidget *parent) :
     connect(settings(), SIGNAL(brushColorChanged(QColor,QColor)), this, SLOT(brushColorChanged(QColor,QColor)));
     connect(Project::activeProject(), SIGNAL(meshAdded()), this, SLOT(onMeshAdded()));
     connect(Project::activeProject(), SIGNAL(meshesRemoved(QList<Mesh*>)), this, SLOT(onMeshesRemoved(QList<Mesh*>)));
+    connect(Project::activeProject(), SIGNAL(meshesAltered(QList<Mesh*>)), this, SLOT(onMeshesAltered(QList<Mesh*>)));
 
     _glViews.append(this); // keep track of all views
 
@@ -165,6 +166,8 @@ void GLView::drawScene()
     QVectorIterator<Mesh*> meshes = project->meshes();
     while (meshes.hasNext()) {
         Mesh* mesh = meshes.next();
+        if (!project->meshVisible(mesh)) // ignore hidden
+            continue;
 
         QMatrix4x4 objToWorld;
 
@@ -386,6 +389,11 @@ void GLView::onMeshesRemoved(QList<Mesh*> removed)
     update();
 }
 
+void GLView::onMeshesAltered(QList<Mesh *> altered)
+{
+    update();
+}
+
 void GLView::drawPaintStrokes()
 {
     if (_strokePoints.size() == 0)
@@ -512,6 +520,8 @@ void GLView::bakePaintLayer()
     QVectorIterator<Mesh*> meshes = project->meshes();
     while (meshes.hasNext()) {
         Mesh* mesh = meshes.next();
+        if (!project->meshVisible(mesh)) // ignore hidden
+            continue;
 
         const int TARGET_TEXTURE_SIZE = mesh->textureSize();
         glViewport(0, 0, TARGET_TEXTURE_SIZE, TARGET_TEXTURE_SIZE);

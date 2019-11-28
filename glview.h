@@ -53,6 +53,7 @@ public slots:
     void brushColorChanged(QColor oldColor, QColor newColor);
     void onMeshAdded();
     void onMeshesRemoved(QList<Mesh*> removed);
+    void onMeshesAltered(QList<Mesh*> altered);
 protected:
     // shared GL resources
     QOpenGLFramebufferObject* drawFbo();

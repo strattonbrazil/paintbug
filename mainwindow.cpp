@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "exporttexturesdialog.h"
+#include "scenetablemodel.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -28,6 +29,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QCoreApplication::setOrganizationName("Paint Bug");
 
     updateRecentMeshesMenu();
+
+    ui->sceneTable->setModel(new SceneTableModel());
 
     connect(ui->newProjectAction, SIGNAL(triggered(bool)), this, SLOT(onNewProjectClicked(bool)));
     connect(ui->saveProjectAction, SIGNAL(triggered(bool)), this, SLOT(onSaveProjectClicked(bool)));
@@ -76,9 +79,36 @@ void MainWindow::onSaveProjectClicked(bool c)
         QJsonDocument doc;
         doc.setObject(rootObj);
 
-        std::cout << doc.toJson().toStdString() << std::endl;
+        QString contents = doc.toJson();
+        QFile projFile(filePath);
+        if (projFile.exists()) {
+            QMessageBox msgBox;
+            msgBox.setText("Are you sure you want to overwrite this file?");
+            //msgBox.setInformativeText("Do you want to save your changes?");
+            msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
+            msgBox.setDefaultButton(QMessageBox::Save);
+            int ret = msgBox.exec();
+            if (ret == QMessageBox::Save) {
+                //saveFile(projFile, contents);
+            }
+        } else {
+//            saveFile(projFile, contents);
+        }
+        //std::cout << doc.toJson().toStdString() << std::endl;
     }
 }
+
+//void MainWindow::saveFile(QFile projFile, QString contents)
+//{
+//    if (projFile.open(QIODevice::ReadWrite))
+//    {
+//        QTextStream stream(&projFile);
+//        stream << contents << endl;
+//        projFile.close();
+//    } else {
+//        QMessageBox::warning(this, "Error", "Unable to save project");
+//    }
+//}
 
 void MainWindow::onImportMeshClicked(bool c)
 {
